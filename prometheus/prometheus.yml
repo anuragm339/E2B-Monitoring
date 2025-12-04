@@ -1,0 +1,46 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'messaging-cluster'
+    environment: 'development'
+
+# Alertmanager configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Load rules once and periodically evaluate them
+rule_files:
+  # - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Messaging Broker metrics
+  - job_name: 'messaging-broker'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['broker:8081']
+        labels:
+          service: 'broker'
+          instance: 'broker-001'
+
+  # Consumer App metrics (if exposed)
+  - job_name: 'consumer-price'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['consumer-price:8082']
+        labels:
+          service: 'consumer'
+          consumer_type: 'price'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Add more brokers/consumers as needed
+  # - job_name: 'broker-002'
+  #   static_configs:
+  #     - targets: ['broker-002:8081']
