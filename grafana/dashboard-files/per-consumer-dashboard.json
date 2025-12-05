@@ -1,0 +1,481 @@
+{
+  "dashboard": {
+    "title": "Per-Consumer Metrics - Detailed View",
+    "uid": "per-consumer-metrics",
+    "tags": ["messaging", "consumer", "detailed"],
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "version": 1,
+    "refresh": "5s",
+
+    "templating": {
+      "list": [
+        {
+          "name": "consumer_id",
+          "type": "query",
+          "label": "Consumer ID",
+          "query": {
+            "query": "label_values(broker_consumer_offset, consumer_id)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "refresh": 1,
+          "multi": true,
+          "includeAll": true,
+          "allValue": ".*"
+        },
+        {
+          "name": "topic",
+          "type": "query",
+          "label": "Topic",
+          "query": {
+            "query": "label_values(broker_consumer_offset{consumer_id=~\"$consumer_id\"}, topic)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "refresh": 1,
+          "multi": true,
+          "includeAll": true,
+          "allValue": ".*"
+        },
+        {
+          "name": "group",
+          "type": "query",
+          "label": "Consumer Group",
+          "query": {
+            "query": "label_values(broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\"}, group)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "refresh": 1,
+          "multi": true,
+          "includeAll": true,
+          "allValue": ".*"
+        }
+      ]
+    },
+
+    "panels": [
+      {
+        "id": 1,
+        "title": "Messages Sent per Consumer",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
+        "targets": [{
+          "expr": "sum(broker_consumer_messages_sent_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
+          "refId": "A"
+        }],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Data Sent (Bytes)",
+        "type": "stat",
+        "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
+        "targets": [{
+          "expr": "sum(broker_consumer_bytes_sent_bytes_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
+          "refId": "A"
+        }],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "decbytes",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Current Offset",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+        "targets": [{
+          "expr": "max(broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
+          "refId": "A"
+        }],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Consumer Lag",
+        "type": "stat",
+        "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+        "targets": [{
+          "expr": "max(broker_consumer_lag{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
+          "refId": "A"
+        }],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+
+      {
+        "id": 5,
+        "title": "Consumer Offset Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["last", "mean"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Consumer Lag Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "broker_consumer_lag{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["last", "max"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+
+      {
+        "id": 7,
+        "title": "Message Throughput (Msgs/sec)",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 12, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "rate(broker_consumer_messages_sent_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m])",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["mean", "last", "max"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Data Throughput (Bytes/sec)",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 12, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "rate(broker_consumer_bytes_sent_bytes_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m])",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["mean", "last", "max"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "Bps",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            }
+          }
+        }
+      },
+
+      {
+        "id": 9,
+        "title": "Delivery Latency (Avg)",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 20, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "rate(broker_consumer_delivery_latency_seconds_sum{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) * 1000",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["mean", "last", "max"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Delivery Latency (Max)",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 20, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "broker_consumer_delivery_latency_seconds_max{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"} * 1000",
+          "refId": "A",
+          "legendFormat": "{{consumer_id}} - {{topic}}"
+        }],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["mean", "last", "max"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10
+            }
+          }
+        }
+      },
+
+      {
+        "id": 11,
+        "title": "Consumer Metrics Table",
+        "type": "table",
+        "gridPos": {"x": 0, "y": 28, "w": 24, "h": 10},
+        "targets": [
+          {
+            "expr": "broker_consumer_messages_sent_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "broker_consumer_bytes_sent_bytes_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+            "refId": "B",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+            "refId": "C",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "broker_consumer_lag{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+            "refId": "D",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "rate(broker_consumer_delivery_latency_seconds_sum{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) * 1000",
+            "refId": "E",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "instance": true,
+                "job": true,
+                "service": true,
+                "__name__": true
+              },
+              "renameByName": {
+                "consumer_id": "Consumer ID",
+                "topic": "Topic",
+                "group": "Group",
+                "Value #A": "Messages Sent",
+                "Value #B": "Bytes Sent",
+                "Value #C": "Offset",
+                "Value #D": "Lag",
+                "Value #E": "Avg Latency (ms)"
+              }
+            }
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Messages Sent",
+              "desc": true
+            }
+          ]
+        },
+        "fieldConfig": {
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "Bytes Sent"},
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "decbytes"
+                }
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "Lag"},
+              "properties": [
+                {
+                  "id": "thresholds",
+                  "value": {
+                    "mode": "absolute",
+                    "steps": [
+                      {"color": "green", "value": null},
+                      {"color": "yellow", "value": 10},
+                      {"color": "red", "value": 100}
+                    ]
+                  }
+                },
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "type": "color-background"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "Avg Latency (ms)"},
+              "properties": [
+                {
+                  "id": "thresholds",
+                  "value": {
+                    "mode": "absolute",
+                    "steps": [
+                      {"color": "green", "value": null},
+                      {"color": "yellow", "value": 50},
+                      {"color": "red", "value": 100}
+                    ]
+                  }
+                },
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "type": "color-background"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}
