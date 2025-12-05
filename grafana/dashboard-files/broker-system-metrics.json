@@ -648,7 +648,7 @@
     },
     {
       "id": 17,
-      "title": "Network Connections",
+      "title": "Active Consumers",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -658,8 +658,8 @@
       },
       "targets": [
         {
-          "expr": "broker_active_connections",
-          "legendFormat": "Active Connections",
+          "expr": "broker_consumer_active",
+          "legendFormat": "Active Consumers",
           "refId": "A"
         }
       ],
@@ -695,7 +695,7 @@
     },
     {
       "id": 18,
-      "title": "Active Consumers",
+      "title": "Total Connections",
       "type": "stat",
       "gridPos": {
         "x": 8,
@@ -705,8 +705,8 @@
       },
       "targets": [
         {
-          "expr": "broker_active_subscriptions",
-          "legendFormat": "Active Subscriptions",
+          "expr": "broker_consumer_connections_total",
+          "legendFormat": "Total Connections",
           "refId": "A"
         }
       ],
@@ -769,6 +769,85 @@
       "options": {
         "graphMode": "area",
         "colorMode": "value"
+      }
+    },
+    {
+      "id": 20,
+      "title": "Per-Consumer Delivery Latency Percentiles",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "expr": "broker_consumer_delivery_latency_seconds{quantile=\"0.5\"}",
+          "legendFormat": "p50 - {{consumer_id}} ({{topic}})",
+          "refId": "A"
+        },
+        {
+          "expr": "broker_consumer_delivery_latency_seconds{quantile=\"0.95\"}",
+          "legendFormat": "p95 - {{consumer_id}} ({{topic}})",
+          "refId": "B"
+        },
+        {
+          "expr": "broker_consumer_delivery_latency_seconds{quantile=\"0.99\"}",
+          "legendFormat": "p99 - {{consumer_id}} ({{topic}})",
+          "refId": "C"
+        },
+        {
+          "expr": "broker_consumer_delivery_latency_seconds_max",
+          "legendFormat": "pMax - {{consumer_id}} ({{topic}})",
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*pMax.*"
+            },
+            "properties": [
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "max", "mean"],
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       }
     }
   ],
