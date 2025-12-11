@@ -67,12 +67,102 @@
   },
   "panels": [
     {
+      "id": 0,
+      "title": "Active Consumers",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "expr": "broker_consumer_offset",
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "instance": true,
+              "job": true
+            },
+            "indexByName": {
+              "consumer_id": 0,
+              "topic": 1,
+              "group": 2
+            },
+            "renameByName": {
+              "consumer_id": "Consumer ID",
+              "topic": "Topic",
+              "group": "Consumer Group"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": true,
+          "reducer": ["count"],
+          "fields": ""
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consumer ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 300
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": 1,
       "title": "Messages Sent per Consumer",
       "type": "stat",
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 6,
         "w": 6,
         "h": 4
       },
@@ -107,7 +197,7 @@
       "type": "stat",
       "gridPos": {
         "x": 6,
-        "y": 0,
+        "y": 6,
         "w": 6,
         "h": 4
       },
@@ -142,7 +232,7 @@
       "type": "stat",
       "gridPos": {
         "x": 12,
-        "y": 0,
+        "y": 6,
         "w": 6,
         "h": 4
       },
@@ -168,7 +258,7 @@
       "type": "stat",
       "gridPos": {
         "x": 18,
-        "y": 0,
+        "y": 6,
         "w": 6,
         "h": 4
       },
@@ -211,7 +301,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 10,
         "w": 12,
         "h": 8
       },
@@ -248,7 +338,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 4,
+        "y": 10,
         "w": 12,
         "h": 8
       },
@@ -302,7 +392,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 12,
+        "y": 18,
         "w": 12,
         "h": 8
       },
@@ -340,7 +430,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 12,
+        "y": 18,
         "w": 12,
         "h": 8
       },
@@ -378,7 +468,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 26,
         "w": 12,
         "h": 8
       },
@@ -433,7 +523,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 20,
+        "y": 26,
         "w": 12,
         "h": 8
       },
@@ -471,7 +561,7 @@
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 34,
         "w": 24,
         "h": 10
       },

@@ -12,12 +12,235 @@
   },
   "panels": [
     {
+      "id": 21,
+      "title": "Docker Stats Overview",
+      "type": "row",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 26,
+      "title": "Container Stats (Docker Stats Style)",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[1m]) * 100",
+          "legendFormat": "CPU %",
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"})",
+          "legendFormat": "MEM USAGE",
+          "refId": "B",
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "expr": "sum(jvm_memory_max_bytes{area=\"heap\"})",
+          "legendFormat": "MEM LIMIT",
+          "refId": "C",
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "expr": "(sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"})) * 100",
+          "legendFormat": "MEM %",
+          "refId": "D",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "application": true,
+              "area": true,
+              "id": true,
+              "instance": true,
+              "job": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value #A": "CPU %",
+              "Value #B": "MEM USAGE",
+              "Value #C": "MEM LIMIT",
+              "Value #D": "MEM %"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "displayMode": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MEM USAGE"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MEM LIMIT"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MEM %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 85
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "id": 25,
+      "title": "",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 24,
+        "h": 2
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Note:** Above table shows docker stats-style metrics. NET I/O and BLOCK I/O metrics require cAdvisor or node-exporter for container-level metrics. Currently showing JVM-level metrics only."
+      }
+    },
+    {
       "id": 1,
       "title": "JVM Heap Memory Usage",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 9,
         "w": 12,
         "h": 8
       },
@@ -60,7 +283,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 0,
+        "y": 9,
         "w": 12,
         "h": 8
       },
@@ -103,7 +326,7 @@
       "type": "gauge",
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 17,
         "w": 8,
         "h": 6
       },
@@ -145,7 +368,7 @@
       "type": "stat",
       "gridPos": {
         "x": 8,
-        "y": 8,
+        "y": 17,
         "w": 8,
         "h": 6
       },
@@ -202,7 +425,7 @@
       "type": "stat",
       "gridPos": {
         "x": 16,
-        "y": 8,
+        "y": 17,
         "w": 8,
         "h": 6
       },
@@ -241,7 +464,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 23,
         "w": 12,
         "h": 8
       },
@@ -274,7 +497,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 14,
+        "y": 23,
         "w": 12,
         "h": 8
       },
@@ -307,7 +530,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 31,
         "w": 24,
         "h": 8
       },
@@ -340,7 +563,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 30,
+        "y": 39,
         "w": 12,
         "h": 8
       },
@@ -380,7 +603,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 30,
+        "y": 39,
         "w": 12,
         "h": 8
       },
@@ -418,7 +641,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 38,
+        "y": 47,
         "w": 12,
         "h": 8
       },
@@ -456,7 +679,7 @@
       "type": "stat",
       "gridPos": {
         "x": 12,
-        "y": 38,
+        "y": 47,
         "w": 12,
         "h": 8
       },
@@ -495,7 +718,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 46,
+        "y": 55,
         "w": 12,
         "h": 8
       },
@@ -533,7 +756,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 46,
+        "y": 55,
         "w": 12,
         "h": 8
       },
@@ -566,7 +789,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 63,
         "w": 12,
         "h": 8
       },
@@ -604,7 +827,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 12,
-        "y": 54,
+        "y": 63,
         "w": 12,
         "h": 8
       },
@@ -652,7 +875,7 @@
       "type": "stat",
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 71,
         "w": 8,
         "h": 6
       },
@@ -699,7 +922,7 @@
       "type": "stat",
       "gridPos": {
         "x": 8,
-        "y": 62,
+        "y": 71,
         "w": 8,
         "h": 6
       },
@@ -738,7 +961,7 @@
       "type": "stat",
       "gridPos": {
         "x": 16,
-        "y": 62,
+        "y": 71,
         "w": 8,
         "h": 6
       },
@@ -777,7 +1000,7 @@
       "type": "timeseries",
       "gridPos": {
         "x": 0,
-        "y": 68,
+        "y": 77,
         "w": 24,
         "h": 10
       },
