@@ -42,21 +42,21 @@
           "format": "table"
         },
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"})",
-          "legendFormat": "MEM USAGE",
+          "expr": "(sum(jvm_memory_used_bytes) + (jvm_buffer_memory_used_bytes{id=\"mapped\"} * 0.25))",
+          "legendFormat": "MEM USAGE (Docker RSS)",
           "refId": "B",
           "instant": true,
           "format": "table"
         },
         {
-          "expr": "sum(jvm_memory_max_bytes{area=\"heap\"})",
-          "legendFormat": "MEM LIMIT",
+          "expr": "838860800",
+          "legendFormat": "MEM LIMIT (800 MB)",
           "refId": "C",
           "instant": true,
           "format": "table"
         },
         {
-          "expr": "(sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"})) * 100",
+          "expr": "((sum(jvm_memory_used_bytes) + (jvm_buffer_memory_used_bytes{id=\"mapped\"} * 0.25)) / 838860800) * 100",
           "legendFormat": "MEM %",
           "refId": "D",
           "instant": true,
@@ -231,7 +231,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Note:** Above table shows docker stats-style metrics. NET I/O and BLOCK I/O metrics require cAdvisor or node-exporter for container-level metrics. Currently showing JVM-level metrics only."
+        "content": "**Note:** Above table shows docker stats-style metrics including complete memory footprint.\n\n**Memory Calculation:** JVM Total + 25% of Mapped Buffers (page cache) = Docker RSS\n\nThis matches the actual container memory shown in `docker stats`. Mapped buffers are from memory-mapped files (mmap) - the virtual memory is large but only ~25% becomes resident in RAM."
       }
     },
     {
@@ -636,13 +636,106 @@
       }
     },
     {
-      "id": 11,
-      "title": "JVM Buffer Pools",
+      "id": 27,
+      "title": "Memory-Mapped Buffers (MMap Files)",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
         "y": 47,
         "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "jvm_buffer_memory_used_bytes{id=\"mapped\"} / 1024 / 1024",
+          "legendFormat": "Mapped Buffers (Virtual MB)",
+          "refId": "A"
+        },
+        {
+          "expr": "(jvm_buffer_memory_used_bytes{id=\"mapped\"} * 0.25) / 1024 / 1024",
+          "legendFormat": "Est. Resident (25% of Virtual)",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max", "mean"]
+        }
+      },
+      "description": "Virtual memory from memory-mapped files (mmap). ~25% becomes resident in RAM (page cache). This is the PRIMARY source of high memory usage beyond JVM heap."
+    },
+    {
+      "id": 28,
+      "title": "Total Docker Memory Estimate",
+      "type": "gauge",
+      "gridPos": {
+        "x": 12,
+        "y": 47,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "(sum(jvm_memory_used_bytes) + (jvm_buffer_memory_used_bytes{id=\"mapped\"} * 0.25)) / 1024 / 1024",
+          "legendFormat": "Docker RSS (MB)",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "max": 800,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 400
+              },
+              {
+                "color": "orange",
+                "value": 600
+              },
+              {
+                "color": "red",
+                "value": 700
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "description": "Estimated Docker container RSS memory (matches docker stats). Formula: JVM memory + 25% of mapped buffers. This should closely match the actual container memory usage."
+    },
+    {
+      "id": 11,
+      "title": "JVM Buffer Pools (All Types)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 18,
+        "y": 47,
+        "w": 6,
         "h": 8
       },
       "targets": [

@@ -1,0 +1,386 @@
+{
+  "id": null,
+  "uid": "data-refresh-monitoring",
+  "title": "Data Refresh Monitoring",
+  "tags": ["data-refresh"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 0,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "System Downtime Summary - Complete Refresh Timeline",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "max_over_time(data_refresh_start_time_seconds[1h:]) * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "max_over_time(data_refresh_end_time_seconds[1h:]) * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        },
+        {
+          "expr": "max_over_time(data_refresh_bytes_transferred_total_bytes[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "C"
+        },
+        {
+          "expr": "max_over_time(data_refresh_messages_transferred_total[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "D"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true,
+              "service": true,
+              "__name__": true,
+              "consumer": true
+            },
+            "indexByName": {
+              "topic": 0,
+              "refresh_type": 1,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5
+            },
+            "renameByName": {
+              "topic": "Topic",
+              "refresh_type": "Refresh Type",
+              "Value #A": "System Down (Pipe Stopped)",
+              "Value #B": "System Up (Pipe Restarted)",
+              "Value #C": "Total Data Transferred",
+              "Value #D": "Total Messages Transferred"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Topic"},
+            "properties": [
+              {"id": "custom.width", "value": 150}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Refresh Type"},
+            "properties": [
+              {"id": "custom.width", "value": 120}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "System Down (Pipe Stopped)"},
+            "properties": [
+              {"id": "unit", "value": "dateTimeAsIso"},
+              {"id": "custom.width", "value": 200}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "System Up (Pipe Restarted)"},
+            "properties": [
+              {"id": "unit", "value": "dateTimeAsIso"},
+              {"id": "custom.width", "value": 200}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Total Data Transferred"},
+            "properties": [
+              {"id": "unit", "value": "decbytes"},
+              {"id": "custom.width", "value": 180}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Total Messages Transferred"},
+            "properties": [
+              {"id": "custom.width", "value": 180}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Data Transferred by Consumer",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "max_over_time(data_refresh_bytes_transferred_total_bytes[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "max_over_time(data_refresh_messages_transferred_total[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "topic"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "instance 1": true,
+              "instance 2": true,
+              "job 1": true,
+              "job 2": true,
+              "service 1": true,
+              "service 2": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "consumer 2": true
+            },
+            "indexByName": {
+              "topic": 0,
+              "consumer 1": 1,
+              "Value #A": 2,
+              "Value #B": 3
+            },
+            "renameByName": {
+              "topic": "Topic",
+              "consumer 1": "Consumer",
+              "Value #A": "Bytes Transferred",
+              "Value #B": "Messages Transferred"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Bytes Transferred"},
+            "properties": [
+              {"id": "unit", "value": "decbytes"}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "Transfer Rate by Consumer",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "max_over_time(data_refresh_transfer_rate_bytes_per_second[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true,
+              "service": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "topic": 0,
+              "consumer": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "topic": "Topic",
+              "consumer": "Consumer",
+              "Value": "Transfer Rate"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Transfer Rate"},
+            "properties": [
+              {"id": "unit", "value": "Bps"},
+              {"id": "decimals", "value": 2}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "title": "RESET ACK Duration by Consumer",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "max_over_time((data_refresh_reset_ack_duration_seconds_sum / data_refresh_reset_ack_duration_seconds_count)[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true,
+              "service": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "topic": 0,
+              "consumer": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "topic": "Topic",
+              "consumer": "Consumer",
+              "Value": "Duration (seconds)"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Duration (seconds)"},
+            "properties": [
+              {"id": "unit", "value": "s"},
+              {"id": "decimals", "value": 3}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "READY ACK (Replay) Duration by Consumer",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "max_over_time((data_refresh_ready_ack_duration_seconds_sum / data_refresh_ready_ack_duration_seconds_count)[1h:])",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true,
+              "service": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "topic": 0,
+              "consumer": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "topic": "Topic",
+              "consumer": "Consumer",
+              "Value": "Replay Duration (seconds)"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Replay Duration (seconds)"},
+            "properties": [
+              {"id": "unit", "value": "s"},
+              {"id": "decimals", "value": 2}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "Refresh Stats",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 24},
+      "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+      "targets": [
+        {
+          "expr": "data_refresh_started_total",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(data_refresh_completed_total)",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "horizontal"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {"id": "byFrameRefID", "options": "A"},
+            "properties": [{"id": "displayName", "value": "Total Started"}]
+          },
+          {
+            "matcher": {"id": "byFrameRefID", "options": "B"},
+            "properties": [{"id": "displayName", "value": "Total Completed"}]
+          }
+        ]
+      }
+    }
+  ]
+}

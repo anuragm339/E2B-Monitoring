@@ -1,0 +1,295 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "data-refresh-tables",
+    "title": "Data Refresh Monitoring - Tables",
+    "tags": ["data-refresh", "tables"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 0,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Data Refresh Summary - All Topics",
+        "type": "table",
+        "gridPos": {"h": 12, "w": 24, "x": 0, "y": 0},
+        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+        "targets": [
+          {
+            "expr": "data_refresh_start_time_seconds * 1000",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          },
+          {
+            "expr": "data_refresh_end_time_seconds * 1000",
+            "format": "table",
+            "instant": true,
+            "refId": "B"
+          },
+          {
+            "expr": "data_refresh_completed_total",
+            "format": "table",
+            "instant": true,
+            "refId": "C"
+          },
+          {
+            "expr": "data_refresh_bytes_transferred_total_bytes_total",
+            "format": "table",
+            "instant": true,
+            "refId": "D"
+          },
+          {
+            "expr": "data_refresh_messages_transferred_total",
+            "format": "table",
+            "instant": true,
+            "refId": "E"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "instance": true,
+                "job": true,
+                "service": true,
+                "__name__": true
+              },
+              "renameByName": {
+                "topic": "Topic",
+                "consumer": "Consumer",
+                "refresh_type": "Refresh Type",
+                "Value #A": "Start Time",
+                "Value #B": "End Time",
+                "Value #C": "Status",
+                "Value #D": "Bytes Transferred",
+                "Value #E": "Messages Transferred"
+              }
+            }
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "Start Time"},
+              "properties": [{"id": "unit", "value": "dateTimeAsIso"}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "End Time"},
+              "properties": [{"id": "unit", "value": "dateTimeAsIso"}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "Bytes Transferred"},
+              "properties": [{"id": "unit", "value": "decbytes"}]
+            }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "title": "RESET ACK Duration by Consumer",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_reset_ack_duration_seconds_bucket[5m])) by (le, topic, consumer))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {
+                "topic": "Topic",
+                "consumer": "Consumer",
+                "Value": "p95 Duration (seconds)"
+              }
+            }
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": ".*Duration.*"},
+              "properties": [
+                {"id": "unit", "value": "s"},
+                {"id": "decimals", "value": 3}
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": 3,
+        "title": "READY ACK (Replay) Duration by Consumer",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_ready_ack_duration_seconds_bucket[5m])) by (le, topic, consumer))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {
+                "topic": "Topic",
+                "consumer": "Consumer",
+                "Value": "p95 Duration (seconds)"
+              }
+            }
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": ".*Duration.*"},
+              "properties": [
+                {"id": "unit", "value": "s"},
+                {"id": "decimals", "value": 3}
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Total Refresh Duration by Topic (p50/p95/p99)",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
+            "format": "table",
+            "instant": true,
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
+            "format": "table",
+            "instant": true,
+            "refId": "C"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {
+                "topic": "Topic",
+                "Value #A": "p99 (seconds)",
+                "Value #B": "p95 (seconds)",
+                "Value #C": "p50 (seconds)"
+              }
+            }
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": "p[0-9]+.*"},
+              "properties": [
+                {"id": "unit", "value": "s"},
+                {"id": "decimals", "value": 3}
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "title": "Data Transferred by Consumer",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
+        "targets": [
+          {
+            "expr": "sum by(topic, consumer) (data_refresh_bytes_transferred_total_bytes_total)",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          },
+          {
+            "expr": "sum by(topic, consumer) (data_refresh_messages_transferred_total)",
+            "format": "table",
+            "instant": true,
+            "refId": "B"
+          },
+          {
+            "expr": "data_refresh_transfer_rate_bytes_per_second",
+            "format": "table",
+            "instant": true,
+            "refId": "C"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {
+                "topic": "Topic",
+                "consumer": "Consumer",
+                "Value #A": "Total Bytes",
+                "Value #B": "Total Messages",
+                "Value #C": "Transfer Rate (Bytes/sec)"
+              }
+            }
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "Total Bytes"},
+              "properties": [{"id": "unit", "value": "decbytes"}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "Transfer Rate (Bytes/sec)"},
+              "properties": [{"id": "unit", "value": "Bps"}]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}
