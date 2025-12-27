@@ -17,6 +17,21 @@
   "templating": {
     "list": [
       {
+        "name": "refresh_id",
+        "type": "custom",
+        "label": "Refresh ID",
+        "query": "",
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "options": [],
+        "hide": 0,
+        "includeAll": false,
+        "multi": false
+      },
+      {
         "name": "status_filter",
         "type": "custom",
         "label": "Topic Status",
@@ -70,7 +85,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "data_refresh_start_time_seconds unless data_refresh_end_time_seconds > 0",
+          "expr": "max by (topic, refresh_id, refresh_type) (data_refresh_start_time_seconds{refresh_id=\"$refresh_id\"} unless data_refresh_end_time_seconds{refresh_id=\"$refresh_id\"} > 0)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -139,7 +154,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_start_time_seconds[1h:]) * 1000",
+          "expr": "max by (topic, refresh_id, refresh_type) (data_refresh_start_time_seconds{refresh_id=\"$refresh_id\"}) * 1000",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -149,7 +164,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_end_time_seconds[1h:]) * 1000",
+          "expr": "max by (topic, refresh_id, refresh_type) (data_refresh_end_time_seconds{refresh_id=\"$refresh_id\"}) * 1000",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -159,7 +174,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_bytes_transferred_total_bytes[1h:])",
+          "expr": "sum by (topic, refresh_id, refresh_type) (data_refresh_bytes_transferred_total_bytes{refresh_id=\"$refresh_id\"})",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -169,7 +184,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_messages_transferred_total[1h:])",
+          "expr": "sum by (topic, refresh_id, refresh_type) (data_refresh_messages_transferred_total{refresh_id=\"$refresh_id\"})",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -286,7 +301,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_bytes_transferred_total_bytes[1h:])",
+          "expr": "sum by (topic, refresh_id, refresh_type) (data_refresh_bytes_transferred_total_bytes{refresh_id=\"$refresh_id\"})",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -296,7 +311,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_messages_transferred_total[1h:])",
+          "expr": "sum by (topic, refresh_id, refresh_type) (data_refresh_messages_transferred_total{refresh_id=\"$refresh_id\"})",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -378,7 +393,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time(data_refresh_transfer_rate_bytes_per_second[1h:])",
+          "expr": "data_refresh_transfer_rate_bytes_per_second{refresh_id=\"$refresh_id\"}",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -450,7 +465,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time((data_refresh_reset_ack_duration_seconds_sum / data_refresh_reset_ack_duration_seconds_count)[1h:])",
+          "expr": "data_refresh_reset_ack_duration_seconds_sum{refresh_id=\"$refresh_id\"} / data_refresh_reset_ack_duration_seconds_count{refresh_id=\"$refresh_id\"}",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -522,7 +537,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max_over_time((data_refresh_ready_ack_duration_seconds_sum / data_refresh_ready_ack_duration_seconds_count)[1h:])",
+          "expr": "data_refresh_ready_ack_duration_seconds_sum{refresh_id=\"$refresh_id\"} / data_refresh_ready_ack_duration_seconds_count{refresh_id=\"$refresh_id\"}",
           "format": "table",
           "instant": true,
           "refId": "A"

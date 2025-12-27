@@ -156,7 +156,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:])) * 1000",
+          "expr": "min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[$__range:])) * 1000",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -166,7 +166,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) * 1000",
+          "expr": "max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[$__range:])) * 1000",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -176,7 +176,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(max by(refresh_id) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id) (max_over_time(data_refresh_start_time_seconds[1h:])))",
+          "expr": "max by(refresh_id) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -186,7 +186,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count by(refresh_id) (max_over_time(data_refresh_start_time_seconds[1h:]))",
+          "expr": "count by(refresh_id) (max_over_time(data_refresh_start_time_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -196,7 +196,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(refresh_id) (max_over_time(data_refresh_bytes_transferred_total_bytes[1h:]))",
+          "expr": "sum by(refresh_id) (max_over_time(data_refresh_bytes_transferred_total_bytes[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "E"
@@ -206,7 +206,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(refresh_id) (max_over_time(data_refresh_messages_transferred_total[1h:]))",
+          "expr": "sum by(refresh_id) (max_over_time(data_refresh_messages_transferred_total[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "F"
@@ -216,10 +216,50 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count by(refresh_id) (max_over_time(data_refresh_end_time_seconds[1h:]) > 0)",
+          "expr": "count by(refresh_id) (max_over_time(data_refresh_end_time_seconds[$__range:]) > 0)",
           "format": "table",
           "instant": true,
           "refId": "G"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id) (max_over_time(data_refresh_downtime_seconds[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "I"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[$__range:])) * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "J"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id, refresh_type) ((data_refresh_end_time_seconds or data_refresh_start_time_seconds + 3600) + 300) * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "K"
         }
       ],
       "transformations": [
@@ -246,7 +286,11 @@
               "Value #D": 5,
               "Value #G": 6,
               "Value #E": 7,
-              "Value #F": 8
+              "Value #F": 8,
+              "Value #H": 9,
+              "Value #I": 10,
+              "Value #J": 11,
+              "Value #K": 12
             },
             "renameByName": {
               "refresh_id": "Batch ID",
@@ -257,7 +301,11 @@
               "Value #D": "Total Topics",
               "Value #G": "Completed",
               "Value #E": "Data Transferred",
-              "Value #F": "Messages"
+              "Value #F": "Messages",
+              "Value #H": "Downtime (s)",
+              "Value #I": "Active Time (s)",
+              "Value #J": "StartMs",
+              "Value #K": "EndMs"
             }
           }
         }
@@ -286,8 +334,8 @@
                 "id": "links",
                 "value": [
                   {
-                    "title": "View Details",
-                    "url": "/d/data-refresh-monitoring/data-refresh-monitoring?var-refresh_id=${__value.raw}&from=now-1h&to=now"
+                    "title": "View Batch Details",
+                    "url": "/d/data-refresh-monitoring/data-refresh-monitoring?var-refresh_id=${__value.raw}&from=${__data.fields.StartMs}&to=${__data.fields.EndMs}"
                   }
                 ]
               }
@@ -497,6 +545,30 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "StartMs"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EndMs"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 1
+              }
+            ]
           }
         ]
       },
@@ -530,7 +602,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count by(refresh_type) (count by(refresh_id, refresh_type) (data_refresh_completed_total) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "count by(refresh_type) (count by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[$__range:])) and max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[$__range:])) > 0)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -540,7 +612,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "avg by(refresh_type) ((max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "avg by(refresh_type) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -550,7 +622,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "quantile by(refresh_type) (0.50, (max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "quantile by(refresh_type) (0.50, max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -560,7 +632,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "quantile by(refresh_type) (0.90, (max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "quantile by(refresh_type) (0.90, max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -570,7 +642,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "quantile by(refresh_type) (0.95, (max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "quantile by(refresh_type) (0.95, max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "E"
@@ -580,7 +652,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "quantile by(refresh_type) (0.99, (max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "quantile by(refresh_type) (0.99, max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "F"
@@ -590,7 +662,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max by(refresh_type) ((max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "max by(refresh_type) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "G"
@@ -600,10 +672,30 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "min by(refresh_type) ((max by(refresh_id, refresh_type) (max_over_time(data_refresh_end_time_seconds[1h:])) - min by(refresh_id, refresh_type) (max_over_time(data_refresh_start_time_seconds[1h:]))) and ((count by(refresh_id, refresh_type) (data_refresh_start_time_seconds)) == (count by(refresh_id, refresh_type) (data_refresh_completed_total))))",
+          "expr": "min by(refresh_type) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "avg by(refresh_type) (max_over_time(data_refresh_downtime_seconds[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "I"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "avg by(refresh_type) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "J"
         }
       ],
       "transformations": [
@@ -629,7 +721,9 @@
               "Value #E": 5,
               "Value #F": 6,
               "Value #G": 7,
-              "Value #H": 8
+              "Value #H": 8,
+              "Value #I": 9,
+              "Value #J": 10
             },
             "renameByName": {
               "refresh_type": "Refresh Type",
@@ -640,7 +734,9 @@
               "Value #E": "p95 (s)",
               "Value #F": "p99 (s)",
               "Value #G": "Max (s)",
-              "Value #H": "Min (s)"
+              "Value #H": "Min (s)",
+              "Value #I": "Avg Downtime (s)",
+              "Value #J": "Avg Active Time (s)"
             }
           }
         }
