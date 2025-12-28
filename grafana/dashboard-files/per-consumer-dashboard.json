@@ -557,7 +557,7 @@
     },
     {
       "id": 11,
-      "title": "Consumer Metrics Table",
+      "title": "Consumer Metrics Table (Grouped by Topic)",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -567,32 +567,38 @@
       },
       "targets": [
         {
-          "expr": "broker_consumer_messages_sent_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "expr": "sum by (topic) (broker_consumer_messages_sent_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
           "refId": "A",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "broker_consumer_bytes_sent_bytes_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "expr": "sum by (topic) (broker_consumer_bytes_sent_bytes_total{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
           "refId": "B",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "expr": "max by (topic) (broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
           "refId": "C",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "broker_consumer_lag{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}",
+          "expr": "max by (topic) (broker_consumer_lag{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
           "refId": "D",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "rate(broker_consumer_delivery_latency_seconds_sum{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) * 1000",
+          "expr": "avg by (topic) (rate(broker_consumer_delivery_latency_seconds_sum{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"}[1m])) * 1000",
           "refId": "E",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "expr": "count by (topic) (broker_consumer_offset{consumer_id=~\"$consumer_id\",topic=~\"$topic\",group=~\"$group\"})",
+          "refId": "F",
           "format": "table",
           "instant": true
         }
@@ -612,15 +618,23 @@
               "service": true,
               "__name__": true
             },
+            "indexByName": {
+              "topic": 0,
+              "Value #F": 1,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5,
+              "Value #E": 6
+            },
             "renameByName": {
-              "consumer_id": "Consumer ID",
               "topic": "Topic",
-              "group": "Group",
-              "Value #A": "Messages Sent",
-              "Value #B": "Bytes Sent",
-              "Value #C": "Offset",
-              "Value #D": "Lag",
-              "Value #E": "Avg Latency (ms)"
+              "Value #A": "Total Messages Sent",
+              "Value #B": "Total Bytes Sent",
+              "Value #C": "Max Offset",
+              "Value #D": "Max Lag",
+              "Value #E": "Avg Latency (ms)",
+              "Value #F": "Consumer Count"
             }
           }
         }
@@ -629,7 +643,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Messages Sent",
+            "displayName": "Total Messages Sent",
             "desc": true
           }
         ]
@@ -639,7 +653,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Bytes Sent"
+              "options": "Total Bytes Sent"
             },
             "properties": [
               {
@@ -651,7 +665,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Lag"
+              "options": "Max Lag"
             },
             "properties": [
               {
@@ -713,6 +727,18 @@
                 "value": {
                   "type": "color-background"
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Topic"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
               }
             ]
           }
