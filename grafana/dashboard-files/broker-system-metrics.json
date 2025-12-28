@@ -35,7 +35,7 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/50b37ebce75b.*\"}[1m]) * 100",
+          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/6517fa308e8c.*\"}[1m]) * 100",
           "refId": "A"
         }
       ],
@@ -72,7 +72,7 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/50b37ebce75b.*\"} / container_spec_memory_limit_bytes{id=~\".*/50b37ebce75b.*\"} * 100",
+          "expr": "container_memory_working_set_bytes{id=~\".*/6517fa308e8c.*\"} / container_spec_memory_limit_bytes{id=~\".*/6517fa308e8c.*\"} * 100",
           "refId": "A"
         }
       ],
@@ -147,7 +147,7 @@
       },
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/50b37ebce75b.*\"}[1m]) + rate(container_fs_writes_bytes_total{id=~\".*/50b37ebce75b.*\"}[1m])",
+          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/6517fa308e8c.*\"}[1m]) + rate(container_fs_writes_bytes_total{id=~\".*/6517fa308e8c.*\"}[1m])",
           "refId": "A"
         }
       ],
@@ -184,7 +184,7 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/50b37ebce75b.*\"} / 1024 / 1024",
+          "expr": "container_memory_working_set_bytes{id=~\".*/6517fa308e8c.*\"} / 1024 / 1024",
           "refId": "A"
         },
         {
@@ -262,7 +262,7 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/50b37ebce75b.*\"}[1m]) * 100",
+          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/6517fa308e8c.*\"}[1m]) * 100",
           "legendFormat": "Container CPU %",
           "refId": "A"
         }
@@ -315,12 +315,12 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/50b37ebce75b.*\"} / 1024 / 1024",
+          "expr": "container_memory_working_set_bytes{id=~\".*/6517fa308e8c.*\"} / 1024 / 1024",
           "legendFormat": "Container Memory Used (MB)",
           "refId": "A"
         },
         {
-          "expr": "container_spec_memory_limit_bytes{id=~\".*/50b37ebce75b.*\"} / 1024 / 1024",
+          "expr": "container_spec_memory_limit_bytes{id=~\".*/6517fa308e8c.*\"} / 1024 / 1024",
           "legendFormat": "Container Memory Limit (MB)",
           "refId": "B"
         }
@@ -360,12 +360,12 @@
       },
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/50b37ebce75b.*\"}[1m])",
+          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/6517fa308e8c.*\"}[1m])",
           "legendFormat": "Read (Bytes/sec)",
           "refId": "A"
         },
         {
-          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/50b37ebce75b.*\"}[1m])",
+          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/6517fa308e8c.*\"}[1m])",
           "legendFormat": "Write (Bytes/sec)",
           "refId": "B"
         }
