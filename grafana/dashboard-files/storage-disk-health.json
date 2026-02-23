@@ -184,12 +184,12 @@
       "gridPos": {"x": 12, "y": 6, "w": 12, "h": 8},
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/3274e4548b1c.*\"}[1m])",
+          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
           "legendFormat": "Read (Bytes/sec)",
           "refId": "A"
         },
         {
-          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/3274e4548b1c.*\"}[1m])",
+          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
           "legendFormat": "Write (Bytes/sec)",
           "refId": "B"
         }
@@ -422,7 +422,7 @@
       "type": "timeseries",
       "gridPos": {"x": 16, "y": 22, "w": 8, "h": 8},
       "targets": [{
-        "expr": "rate(container_fs_io_time_seconds_total{id=~\".*/3274e4548b1c.*\"}[1m])",
+        "expr": "rate(container_fs_io_time_seconds_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
         "legendFormat": "I/O Time (sec/sec)",
         "refId": "A"
       }],

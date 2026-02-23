@@ -4,7 +4,7 @@
   "tags": ["topic", "performance", "throughput"],
   "timezone": "browser",
   "schemaVersion": 27,
-  "version": 1,
+  "version": 2,
   "refresh": "5s",
   "time": {
     "from": "now-15m",
@@ -40,11 +40,11 @@
     },
     {
       "id": 2,
-      "title": "Total Throughput",
+      "title": "Successful Throughput",
       "type": "stat",
       "gridPos": {"x": 6, "y": 0, "w": 6, "h": 6},
       "targets": [{
-        "expr": "sum(rate(broker_consumer_messages_sent_total[1m]))",
+        "expr": "sum(rate(broker_consumer_messages_sent_total[1m])) - sum(rate(broker_consumer_messages_failed_total[1m]) or vector(0))",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -69,11 +69,11 @@
     },
     {
       "id": 3,
-      "title": "Total Bytes Sent",
+      "title": "Total Successful Bytes (MB)",
       "type": "stat",
       "gridPos": {"x": 12, "y": 0, "w": 6, "h": 6},
       "targets": [{
-        "expr": "sum(broker_consumer_bytes_sent_bytes_total) / 1024 / 1024",
+        "expr": "(sum(broker_consumer_bytes_sent_bytes_total) - sum(broker_consumer_bytes_failed_bytes_total or vector(0))) / 1024 / 1024",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -129,7 +129,7 @@
       "gridPos": {"x": 0, "y": 6, "w": 24, "h": 10},
       "targets": [
         {
-          "expr": "sum by(topic) (rate(broker_consumer_messages_sent_total[5m]))",
+          "expr": "sum by(topic) (rate(broker_consumer_messages_sent_total[5m])) - sum by(topic) (rate(broker_consumer_messages_failed_total[5m]) or vector(0))",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -147,7 +147,7 @@
           "refId": "C"
         },
         {
-          "expr": "count by(topic) (count by(topic, consumer_id) (broker_consumer_messages_sent_total))",
+          "expr": "count by(topic) (count by(topic, group) (broker_consumer_messages_sent_total))",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -157,6 +157,18 @@
           "format": "table",
           "instant": true,
           "refId": "E"
+        },
+        {
+          "expr": "sum by(topic) (broker_consumer_bytes_failed_bytes_total or vector(0)) / 1024 / 1024",
+          "format": "table",
+          "instant": true,
+          "refId": "F"
+        },
+        {
+          "expr": "(sum by(topic) (broker_consumer_bytes_sent_bytes_total) - sum by(topic) (broker_consumer_bytes_failed_bytes_total or vector(0))) / (sum by(topic) (broker_consumer_bytes_sent_bytes_total) + 0.01) * 100",
+          "format": "table",
+          "instant": true,
+          "refId": "G"
         }
       ],
       "transformations": [
@@ -179,15 +191,19 @@
               "Value #B": "Total Bytes Sent (MB)",
               "Value #C": "Avg Msg Size (bytes)",
               "Value #D": "Active Consumers",
-              "Value #E": "Delivery Latency p99 (ms)"
+              "Value #E": "Delivery Latency p99 (ms)",
+              "Value #F": "Failed Bytes (MB)",
+              "Value #G": "Success Rate (%)"
             },
             "indexByName": {
               "topic": 0,
               "Value #A": 1,
               "Value #B": 2,
-              "Value #C": 3,
-              "Value #D": 4,
-              "Value #E": 5
+              "Value #F": 3,
+              "Value #G": 4,
+              "Value #C": 5,
+              "Value #D": 6,
+              "Value #E": 7
             }
           }
         }
@@ -427,6 +443,93 @@
           "displayMode": "table",
           "placement": "right",
           "calcs": ["lastNotNull", "mean", "max"]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Total Failed Bytes (MB)",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 48, "w": 6, "h": 6},
+      "targets": [{
+        "expr": "sum(broker_consumer_bytes_failed_bytes_total or vector(0)) / 1024 / 1024",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decmbytes",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 100},
+              {"color": "orange", "value": 500},
+              {"color": "red", "value": 1000}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Overall Success Rate (%)",
+      "type": "stat",
+      "gridPos": {"x": 6, "y": 48, "w": 6, "h": 6},
+      "targets": [{
+        "expr": "(sum(broker_consumer_bytes_sent_bytes_total) - sum(broker_consumer_bytes_failed_bytes_total or vector(0))) / (sum(broker_consumer_bytes_sent_bytes_total) + 0.01) * 100",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "orange", "value": 95},
+              {"color": "yellow", "value": 99},
+              {"color": "green", "value": 99.9}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "background"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Failed Transfer Rate by Topic (bytes/s)",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 54, "w": 24, "h": 8},
+      "targets": [{
+        "expr": "sum by(topic) (rate(broker_consumer_bytes_failed_bytes_total[1m]) or vector(0))",
+        "legendFormat": "{{topic}}",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "decimals": 2,
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "sum"]
         }
       }
     }

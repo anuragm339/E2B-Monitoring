@@ -514,7 +514,7 @@
             "uid": "prometheus-datasource"
           },
           "expr": "rate(broker_consumer_messages_sent_total[1m])",
-          "legendFormat": "{{consumer_id}} - {{topic}}",
+          "legendFormat": "{{group}} - {{topic}}",
           "refId": "A"
         }
       ],

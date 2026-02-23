@@ -4,7 +4,7 @@
   "tags": ["consumer", "health", "performance"],
   "timezone": "browser",
   "schemaVersion": 27,
-  "version": 1,
+  "version": 2,
   "refresh": "5s",
   "time": {
     "from": "now-15m",
@@ -13,11 +13,11 @@
   "panels": [
     {
       "id": 1,
-      "title": "Active Consumers",
+      "title": "Active Consumer Groups",
       "type": "stat",
       "gridPos": {"x": 0, "y": 0, "w": 6, "h": 6},
       "targets": [{
-        "expr": "count(count by(consumer_id) (broker_consumer_lag))",
+        "expr": "count(count by(group, topic) (broker_consumer_lag))",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -128,27 +128,45 @@
     },
     {
       "id": 5,
-      "title": "Consumer Overview",
+      "title": "Consumer Group Overview",
       "type": "table",
       "gridPos": {"x": 0, "y": 6, "w": 24, "h": 10},
       "targets": [
         {
-          "expr": "sum by(consumer_id, group) (rate(broker_consumer_messages_sent_total[5m]))",
+          "expr": "sum by(topic, group) (rate(broker_consumer_messages_sent_total[5m])) - sum by(topic, group) (rate(broker_consumer_messages_failed_total[5m]) or vector(0))",
           "format": "table",
           "instant": true,
           "refId": "A"
         },
         {
-          "expr": "sum by(consumer_id, group) (broker_consumer_lag)",
+          "expr": "sum by(topic, group) (broker_consumer_lag)",
           "format": "table",
           "instant": true,
           "refId": "B"
         },
         {
-          "expr": "avg by(consumer_id, group) (broker_consumer_delivery_latency_seconds{quantile=\"0.99\"})",
+          "expr": "avg by(topic, group) (broker_consumer_delivery_latency_seconds{quantile=\"0.99\"})",
           "format": "table",
           "instant": true,
           "refId": "C"
+        },
+        {
+          "expr": "sum by(topic, group) (broker_consumer_bytes_failed_total) / 1024 / 1024",
+          "format": "table",
+          "instant": true,
+          "refId": "D"
+        },
+        {
+          "expr": "(sum by(topic, group) (broker_consumer_bytes_sent_total) - sum by(topic, group) (broker_consumer_bytes_failed_total or vector(0))) / (sum by(topic, group) (broker_consumer_bytes_sent_total) + 0.01) * 100",
+          "format": "table",
+          "instant": true,
+          "refId": "E"
+        },
+        {
+          "expr": "(time() * 1000 - broker_consumer_last_ack_time_ms) / 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "F"
         }
       ],
       "transformations": [
@@ -166,18 +184,24 @@
               "quantile": true
             },
             "renameByName": {
-              "consumer_id": "Consumer ID",
+              "topic": "Topic",
               "group": "Consumer Group",
               "Value #A": "Msg Rate (msg/s)",
               "Value #B": "Total Lag",
-              "Value #C": "Avg Latency p99 (ms)"
+              "Value #C": "Avg Latency p99 (ms)",
+              "Value #D": "Failed Bytes (MB)",
+              "Value #E": "Success Rate (%)",
+              "Value #F": "Last ACK (sec ago)"
             },
             "indexByName": {
-              "consumer_id": 0,
+              "topic": 0,
               "group": 1,
               "Value #A": 2,
               "Value #B": 3,
-              "Value #C": 4
+              "Value #C": 4,
+              "Value #D": 5,
+              "Value #E": 6,
+              "Value #F": 7
             }
           }
         }
@@ -252,6 +276,89 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Failed Bytes (MB)"},
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "green", "value": null},
+                    {"color": "yellow", "value": 10},
+                    {"color": "orange", "value": 100},
+                    {"color": "red", "value": 500}
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Success Rate (%)"},
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "red", "value": null},
+                    {"color": "orange", "value": 95},
+                    {"color": "yellow", "value": 99},
+                    {"color": "green", "value": 99.9}
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Last ACK (sec ago)"},
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "green", "value": null},
+                    {"color": "yellow", "value": 300},
+                    {"color": "orange", "value": 600},
+                    {"color": "red", "value": 1200}
+                  ]
+                }
+              }
+            ]
           }
         ]
       },
@@ -259,7 +366,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Consumer ID",
+            "displayName": "Topic",
             "desc": false
           }
         ]
@@ -267,12 +374,12 @@
     },
     {
       "id": 6,
-      "title": "Message Rate by Consumer",
+      "title": "Message Rate by Consumer Group",
       "type": "timeseries",
       "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
       "targets": [{
-        "expr": "sum by(consumer_id) (rate(broker_consumer_messages_sent_total[1m]))",
-        "legendFormat": "{{consumer_id}}",
+        "expr": "sum by(group, topic) (rate(broker_consumer_messages_sent_total[1m]))",
+        "legendFormat": "{{group}} - {{topic}}",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -306,7 +413,7 @@
       "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
       "targets": [{
         "expr": "broker_consumer_lag",
-        "legendFormat": "{{consumer_id}}",
+        "legendFormat": "{{group}} - {{topic}}",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -330,12 +437,12 @@
     },
     {
       "id": 8,
-      "title": "Delivery Latency (p99) by Consumer",
+      "title": "Delivery Latency (p99) by Consumer Group",
       "type": "timeseries",
       "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
       "targets": [{
         "expr": "broker_consumer_delivery_latency_seconds{quantile=\"0.99\"}",
-        "legendFormat": "{{consumer_id}}",
+        "legendFormat": "{{group}} - {{topic}}",
         "refId": "A"
       }],
       "fieldConfig": {
@@ -354,6 +461,139 @@
           "displayMode": "table",
           "placement": "right",
           "calcs": ["lastNotNull", "mean", "max"]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Failed Transfer Rate (%)",
+      "type": "stat",
+      "gridPos": {"x": 12, "y": 24, "w": 6, "h": 4},
+      "targets": [{
+        "expr": "avg(rate(broker_consumer_bytes_failed_total[5m]) or vector(0)) / (avg(rate(broker_consumer_bytes_sent_total[5m])) + 0.01) * 100",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 0.1},
+              {"color": "orange", "value": 1},
+              {"color": "red", "value": 5}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "background",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Stuck Consumers (>10min no ACK)",
+      "type": "stat",
+      "gridPos": {"x": 18, "y": 24, "w": 6, "h": 4},
+      "targets": [{
+        "expr": "count((time() * 1000 - broker_consumer_last_ack_time_ms) / 1000 > 600) or vector(0)",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "red", "value": 1}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Time Since Last ACK by Consumer",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 28, "w": 12, "h": 8},
+      "targets": [{
+        "expr": "(time() * 1000 - broker_consumer_last_ack_time_ms) / 1000",
+        "legendFormat": "{{group}} - {{topic}}",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 300},
+              {"color": "red", "value": 600}
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "max"]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Failed Messages by Consumer Group",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
+      "targets": [{
+        "expr": "sum by(group, topic) (rate(broker_consumer_messages_failed_total[1m]))",
+        "legendFormat": "{{group}} - {{topic}}",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "msg/s",
+          "decimals": 2,
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["lastNotNull", "sum"]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
         }
       }
     }
