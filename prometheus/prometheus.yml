@@ -26,14 +26,62 @@ scrape_configs:
           service: 'broker'
           instance: 'broker-001'
 
-  # Consumer App metrics (if exposed)
-  - job_name: 'consumer-price'
+  # Consumer App metrics
+  - job_name: 'consumer-apps'
     metrics_path: '/prometheus'
     static_configs:
-      - targets: ['consumer-price:8082']
+      - targets: ['consumer-price-quote:8090']
         labels:
           service: 'consumer'
-          consumer_type: 'price'
+          consumer_type: 'price-quote'
+      - targets: ['consumer-product-svc-lite:8091']
+        labels:
+          service: 'consumer'
+          consumer_type: 'product-svc-lite'
+      - targets: ['consumer-search-enterprise:8092']
+        labels:
+          service: 'consumer'
+          consumer_type: 'search-enterprise'
+      - targets: ['consumer-tesco-location-service:8093']
+        labels:
+          service: 'consumer'
+          consumer_type: 'tesco-location-service'
+      - targets: ['consumer-customer-order-on-till:8094']
+        labels:
+          service: 'consumer'
+          consumer_type: 'customer-order-on-till'
+      - targets: ['consumer-colleague-facts:8095']
+        labels:
+          service: 'consumer'
+          consumer_type: 'colleague-facts'
+      - targets: ['consumer-loss-prevention-api:8096']
+        labels:
+          service: 'consumer'
+          consumer_type: 'loss-prevention-api'
+      - targets: ['consumer-stored-value-services:8097']
+        labels:
+          service: 'consumer'
+          consumer_type: 'stored-value-services'
+      - targets: ['consumer-colleague-identity:8098']
+        labels:
+          service: 'consumer'
+          consumer_type: 'colleague-identity'
+      - targets: ['consumer-distributed-identity:8099']
+        labels:
+          service: 'consumer'
+          consumer_type: 'distributed-identity'
+      - targets: ['consumer-dcxp-content:8100']
+        labels:
+          service: 'consumer'
+          consumer_type: 'dcxp-content'
+      - targets: ['consumer-restriction-service-on-tills:8101']
+        labels:
+          service: 'consumer'
+          consumer_type: 'restriction-service-on-tills'
+      - targets: ['consumer-dcxp-ugc:8102']
+        labels:
+          service: 'consumer'
+          consumer_type: 'dcxp-ugc'
 
   # Prometheus self-monitoring
   - job_name: 'prometheus'
