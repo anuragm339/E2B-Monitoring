@@ -6,67 +6,58 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "JVM & Process Detail",
+      "type": "link",
+      "url": "/d/broker-system-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 100
-              }
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 100 }
             ]
           },
           "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
       "id": 1,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
-        },
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
         "textMode": "auto"
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "jvm_threads_live_threads",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "jvm_threads_live_threads{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -74,59 +65,36 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
             ]
           },
           "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
-        },
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
         "textMode": "auto"
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_blocked",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_blocked{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -134,59 +102,36 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 10
-              }
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 }
             ]
           },
           "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
-        },
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
         "textMode": "auto"
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_waiting",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_waiting{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -194,59 +139,37 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+      "description": "Number of deadlocked threads detected by the JVM deadlock detector. Any value > 0 indicates a deadlock condition.",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
             ]
           },
           "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
       "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
-        },
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
         "textMode": "auto"
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_deadlocked",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_deadlocked{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -254,15 +177,10 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
@@ -272,67 +190,35 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
+            "scaleDistribution": { "type": "linear" },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
           "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
       "id": 5,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_category_count",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_category_count{service=\"broker\"}",
           "legendFormat": "{{category}}",
           "refId": "A"
         }
@@ -341,15 +227,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
@@ -359,84 +240,47 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
+            "scaleDistribution": { "type": "linear" },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
           "unit": "ms"
         }
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
       "id": 6,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "rate(broker_threads_category_cpu_time_ms[1m])",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_category_cpu_time_ms{service=\"broker\"}",
           "legendFormat": "{{category}}",
           "refId": "A"
         }
       ],
-      "title": "CPU Time by Category (Rate)",
+      "title": "CPU Time by Category (ms)",
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
@@ -446,306 +290,154 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
+            "scaleDistribution": { "type": "linear" },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.5
-              },
-              {
-                "color": "red",
-                "value": 2
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "MBs"
+          "unit": "short"
         }
       },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 12
-      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
       "id": 7,
       "options": {
-        "legend": {
-          "calcs": ["mean", "max"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "rate(broker_threads_category_memory_mb[1m])",
-          "legendFormat": "{{category}}",
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "jvm_threads_states_threads{service=\"broker\"}",
+          "legendFormat": "{{state}}",
           "refId": "A"
         }
       ],
-      "title": "Memory Allocation Rate by Thread Category (MB/sec)",
+      "title": "Thread States Over Time",
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            }
-          },
-          "mappings": []
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": ["value"]
-        },
-        "pieType": "pie",
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "9.5.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_category_count",
-          "legendFormat": "{{category}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Thread Distribution by Category",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Memory (MB)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "decmbytes"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPU Time (ms)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "ms"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          }
-        ]
+          "unit": "decmbytes"
+        }
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 20
-      },
-      "id": 9,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "id": 8,
       "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false,
-          "reducer": ["sum"],
-          "fields": ""
-        },
-        "sortBy": [
-          {
-            "displayName": "Memory (MB)",
-            "desc": true
-          }
-        ]
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "9.5.3",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_category_count",
-          "format": "table",
-          "instant": true,
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "broker_threads_category_memory_mb{service=\"broker\"}",
+          "legendFormat": "{{category}}",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_category_memory_mb",
-          "format": "table",
-          "instant": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_threads_category_cpu_time_ms",
-          "format": "table",
-          "instant": true,
-          "refId": "C"
         }
       ],
-      "title": "Thread Resources by Category",
-      "transformations": [
+      "title": "Memory by Thread Category (MB)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "Bps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "id": 9,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
         {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "instance": true,
-              "job": true
-            },
-            "indexByName": {
-              "category": 0,
-              "Value #A": 1,
-              "Value #B": 2,
-              "Value #C": 3
-            },
-            "renameByName": {
-              "Value #A": "Thread Count",
-              "Value #B": "Memory (MB)",
-              "Value #C": "CPU Time (ms)",
-              "category": "Category"
-            }
-          }
+          "datasource": { "type": "prometheus", "uid": "prometheus-datasource" },
+          "expr": "rate(jvm_gc_memory_allocated_bytes_total{service=\"broker\"}[1m])",
+          "legendFormat": "GC Allocation Rate",
+          "refId": "A"
         }
       ],
-      "type": "table"
+      "title": "GC Allocation Rate",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["broker", "threads", "performance"],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-15m",
-    "to": "now"
-  },
+  "tags": ["engineering", "threads", "deep-dive"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "Thread Monitoring Dashboard",
+  "title": "Engineering - Thread Deep Dive",
   "uid": "thread-monitoring",
   "version": 1,
-  "weekStart": ""
+  "weekStart": "",
+  "refresh": "30s",
+  "description": "Thread-category CPU and thread-state analysis for broker internals. Use this for hot-thread and contention investigation."
 }

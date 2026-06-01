@@ -1,9 +1,10 @@
 {
   "id": null,
   "uid": "data-refresh-overview",
-  "title": "Data Refresh - Overview",
+  "title": "Support - Refresh Overview",
   "tags": [
-    "data-refresh",
+    "support",
+    "refresh",
     "overview"
   ],
   "timezone": "browser",
@@ -13,7 +14,32 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "links": [],
+  "links": [
+    {
+      "title": "Refresh Topic Detail",
+      "type": "link",
+      "url": "/d/data-refresh-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Refresh Reliability",
+      "type": "link",
+      "url": "/d/refresh-reliability",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -36,7 +62,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count((count by(refresh_id) (data_refresh_start_time_seconds)) == (count by(refresh_id) (data_refresh_completed_total)))",
+          "expr": "count((count by(refresh_id) (data_refresh_start_time_seconds)) == (count by(refresh_id) (data_refresh_completed_total))) or vector(0)",
           "refId": "A"
         }
       ],
@@ -92,7 +118,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count(count by(refresh_id) (data_refresh_start_time_seconds) unless ((count by(refresh_id) (data_refresh_start_time_seconds)) == (count by(refresh_id) (data_refresh_completed_total))))",
+          "expr": "count(count by(refresh_id) (data_refresh_start_time_seconds) unless ((count by(refresh_id) (data_refresh_start_time_seconds)) == (count by(refresh_id) (data_refresh_completed_total)))) or vector(0)",
           "refId": "A"
         }
       ],
@@ -176,7 +202,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max by(refresh_id) (max_over_time(data_refresh_active_processing_seconds[$__range:]))",
+          "expr": "max by(refresh_id) (max_over_time((data_refresh_duration_seconds_sum / data_refresh_duration_seconds_count)[$__range:]))",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -260,6 +286,36 @@
           "format": "table",
           "instant": true,
           "refId": "K"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id) (max_over_time((data_refresh_reset_ack_duration_seconds_sum / data_refresh_reset_ack_duration_seconds_count)[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "L"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id) (max_over_time((data_refresh_replay_duration_seconds_sum / data_refresh_replay_duration_seconds_count)[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "M"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "max by(refresh_id) (max_over_time((data_refresh_ready_ack_duration_seconds_sum / data_refresh_ready_ack_duration_seconds_count)[$__range:]))",
+          "format": "table",
+          "instant": true,
+          "refId": "N"
         }
       ],
       "transformations": [
@@ -290,14 +346,17 @@
               "Value #H": 9,
               "Value #I": 10,
               "Value #J": 11,
-              "Value #K": 12
+              "Value #K": 12,
+              "Value #L": 13,
+              "Value #M": 14,
+              "Value #N": 15
             },
             "renameByName": {
               "refresh_id": "Batch ID",
               "refresh_type": "Type",
               "Value #A": "Start Time",
               "Value #B": "Latest End Time",
-              "Value #C": "Duration (s)",
+              "Value #C": "Batch Duration (s)",
               "Value #D": "Total Topics",
               "Value #G": "Completed",
               "Value #E": "Data Transferred",
@@ -305,7 +364,10 @@
               "Value #H": "Downtime (s)",
               "Value #I": "Active Time (s)",
               "Value #J": "StartMs",
-              "Value #K": "EndMs"
+              "Value #K": "EndMs",
+              "Value #L": "Slowest RESET ACK (s)",
+              "Value #M": "Slowest Replay (s)",
+              "Value #N": "Slowest READY ACK (s)"
             }
           }
         }
@@ -376,7 +438,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Duration (s)"
+              "options": "Batch Duration (s)"
             },
             "properties": [
               {
@@ -427,6 +489,66 @@
                     }
                   ]
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Slowest RESET ACK (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.width",
+                "value": 135
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Slowest Replay (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.width",
+                "value": 135
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Slowest READY ACK (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.width",
+                "value": 150
               }
             ]
           },
@@ -874,5 +996,6 @@
         ]
       }
     }
-  ]
+  ],
+  "description": "Support-facing refresh status, history, and completion view. If panels are empty, no refresh activity was recorded in the selected time range."
 }

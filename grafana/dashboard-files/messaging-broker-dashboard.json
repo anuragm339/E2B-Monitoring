@@ -6,7 +6,48 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Delivery Diagnosis",
+      "type": "link",
+      "url": "/d/consumer-delivery-diagnosis",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Consumer Health",
+      "type": "link",
+      "url": "/d/consumer-health-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Producer vs Consumer Gap",
+      "type": "link",
+      "url": "/d/producer-consumer-gap",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Refresh Overview",
+      "type": "link",
+      "url": "/d/data-refresh-overview",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -54,7 +95,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -66,7 +109,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_consumer_active",
+          "expr": "broker_consumer_subscriptions_active",
           "refId": "A"
         }
       ],
@@ -110,7 +153,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -165,7 +210,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -228,7 +275,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -239,7 +288,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000",
+          "expr": "(rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000) or vector(0)",
           "refId": "A"
         }
       ],
@@ -266,7 +315,7 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "Bps"
         }
       },
       "gridPos": {
@@ -283,7 +332,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -321,7 +372,7 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "Bps"
         }
       },
       "gridPos": {
@@ -338,7 +389,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -393,7 +446,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "textMode": "auto"
@@ -473,7 +528,11 @@
       "id": 8,
       "options": {
         "legend": {
-          "calcs": ["mean", "max", "last"],
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -489,7 +548,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000",
+          "expr": "(rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000) or vector(0)",
           "legendFormat": "E2E Latency (avg)",
           "refId": "A"
         },
@@ -507,7 +566,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "histogram_quantile(0.99, rate(broker_message_e2e_latency_seconds_bucket[1m])) * 1000",
+          "expr": "broker_message_e2e_latency_seconds{quantile=\"0.99\"} * 1000",
           "legendFormat": "E2E Latency (p99)",
           "refId": "C"
         },
@@ -516,12 +575,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "histogram_quantile(0.95, rate(broker_message_e2e_latency_seconds_bucket[1m])) * 1000",
+          "expr": "broker_message_e2e_latency_seconds{quantile=\"0.95\"} * 1000",
           "legendFormat": "E2E Latency (p95)",
           "refId": "D"
         }
       ],
-      "title": "End-to-End Latency (Cloud → Consumer)",
+      "title": "End-to-End Latency (Cloud \u2192 Consumer)",
       "type": "timeseries"
     },
     {
@@ -586,7 +645,11 @@
       "id": 9,
       "options": {
         "legend": {
-          "calcs": ["mean", "max", "last"],
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -602,7 +665,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_message_delivery_latency_seconds_sum[1m]) / rate(broker_message_delivery_latency_seconds_count[1m]) * 1000",
+          "expr": "(rate(broker_message_delivery_latency_seconds_sum[1m]) / rate(broker_message_delivery_latency_seconds_count[1m]) * 1000) or vector(0)",
           "legendFormat": "Delivery Latency (avg)",
           "refId": "A"
         },
@@ -611,7 +674,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_storage_write_latency_seconds_sum[1m]) / rate(broker_storage_write_latency_seconds_count[1m]) * 1000",
+          "expr": "(rate(broker_storage_write_latency_seconds_sum[1m]) / rate(broker_storage_write_latency_seconds_count[1m]) * 1000) or vector(0)",
           "legendFormat": "Storage Write (avg)",
           "refId": "B"
         },
@@ -620,7 +683,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_storage_read_latency_seconds_sum[1m]) / rate(broker_storage_read_latency_seconds_count[1m]) * 1000",
+          "expr": "(rate(broker_storage_read_latency_seconds_sum[1m]) / rate(broker_storage_read_latency_seconds_count[1m]) * 1000) or vector(0)",
           "legendFormat": "Storage Read (avg)",
           "refId": "C"
         }
@@ -690,7 +753,11 @@
       "id": 10,
       "options": {
         "legend": {
-          "calcs": ["mean", "max", "last"],
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -785,7 +852,11 @@
       "id": 11,
       "options": {
         "legend": {
-          "calcs": ["mean", "max", "last"],
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -889,7 +960,9 @@
       "id": 12,
       "options": {
         "legend": {
-          "calcs": ["last"],
+          "calcs": [
+            "last"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -901,30 +974,18 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "broker_consumer_active",
-          "legendFormat": "Active Subscriptions",
+          "expr": "broker_consumer_clients_active",
+          "legendFormat": "Active Clients",
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "rate(broker_consumer_connections_total[5m])",
-          "legendFormat": "Connects/sec",
+          "expr": "rate(broker_consumer_clients_connected_total[5m])",
+          "legendFormat": "Client Connects/sec",
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "rate(broker_consumer_disconnections_total[5m])",
-          "legendFormat": "Disconnects/sec",
+          "expr": "rate(broker_consumer_clients_disconnected_total[5m])",
+          "legendFormat": "Client Disconnects/sec",
           "refId": "C"
         }
       ],
@@ -993,7 +1054,11 @@
       "id": 13,
       "options": {
         "legend": {
-          "calcs": ["mean", "max", "last"],
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1009,7 +1074,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_message_size_bytes_sum[1m]) / rate(broker_message_size_bytes_count[1m])",
+          "expr": "(rate(broker_message_size_bytes_sum[1m]) / rate(broker_message_size_bytes_count[1m])) or vector(0)",
           "legendFormat": "Avg Message Size",
           "refId": "A"
         },
@@ -1027,7 +1092,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "histogram_quantile(0.99, rate(broker_message_size_bytes_bucket[1m]))",
+          "expr": "broker_message_size_bytes{quantile=\"0.99\"}",
           "legendFormat": "P99 Message Size",
           "refId": "C"
         }
@@ -1097,7 +1162,10 @@
       "id": 14,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1192,7 +1260,10 @@
       "id": 15,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1229,7 +1300,12 @@
   "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["messaging", "broker", "multi-consumer"],
+  "tags": [
+    "support",
+    "broker",
+    "overview",
+    "primary"
+  ],
   "templating": {
     "list": []
   },
@@ -1239,7 +1315,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Messaging Broker - Multi-Consumer Dashboard",
+  "title": "Support - Broker Overview",
   "uid": "messaging-broker-multi-consumer",
-  "version": 0
+  "version": 0,
+  "description": "Primary support dashboard for broker traffic, latency, subscriptions, and consumer connectivity. Start here for incident triage."
 }

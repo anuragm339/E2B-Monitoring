@@ -1,7 +1,11 @@
 {
-  "title": "Storage & Disk Health",
+  "title": "Support - Storage Health",
   "uid": "storage-disk-health",
-  "tags": ["storage", "disk", "iops", "latency"],
+  "tags": [
+    "support",
+    "storage",
+    "disk"
+  ],
   "timezone": "browser",
   "schemaVersion": 27,
   "version": 1,
@@ -15,11 +19,18 @@
       "id": 1,
       "title": "Read IOPS",
       "type": "stat",
-      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 6},
-      "targets": [{
-        "expr": "rate(broker_storage_reads_total[1m])",
-        "refId": "A"
-      }],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(broker_storage_reads_total[1m])",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "ops",
@@ -27,10 +38,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 100},
-              {"color": "orange", "value": 500},
-              {"color": "red", "value": 1000}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           }
         }
@@ -44,11 +67,18 @@
       "id": 2,
       "title": "Write IOPS",
       "type": "stat",
-      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 6},
-      "targets": [{
-        "expr": "rate(broker_storage_writes_total[1m])",
-        "refId": "A"
-      }],
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(broker_storage_writes_total[1m])",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "ops",
@@ -56,10 +86,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 100},
-              {"color": "orange", "value": 500},
-              {"color": "red", "value": 1000}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           }
         }
@@ -73,11 +115,18 @@
       "id": 3,
       "title": "Read Latency (p99)",
       "type": "stat",
-      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 6},
-      "targets": [{
-        "expr": "broker_storage_read_latency_seconds{quantile=\"0.99\"}",
-        "refId": "A"
-      }],
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "broker_storage_read_latency_seconds{quantile=\"0.99\"}",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -85,10 +134,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 0.01},
-              {"color": "orange", "value": 0.05},
-              {"color": "red", "value": 0.1}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
             ]
           }
         }
@@ -102,11 +163,18 @@
       "id": 4,
       "title": "Write Latency (p99)",
       "type": "stat",
-      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 6},
-      "targets": [{
-        "expr": "broker_storage_write_latency_seconds{quantile=\"0.99\"}",
-        "refId": "A"
-      }],
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "broker_storage_write_latency_seconds{quantile=\"0.99\"}",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -114,10 +182,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 0.01},
-              {"color": "orange", "value": 0.05},
-              {"color": "red", "value": 0.1}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
             ]
           }
         }
@@ -131,7 +211,12 @@
       "id": 5,
       "title": "Storage Read/Write IOPS",
       "type": "timeseries",
-      "gridPos": {"x": 0, "y": 6, "w": 12, "h": 8},
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
       "targets": [
         {
           "expr": "rate(broker_storage_reads_total[1m])",
@@ -148,7 +233,9 @@
         "defaults": {
           "unit": "ops",
           "decimals": 2,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -156,15 +243,33 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Reads"},
+            "matcher": {
+              "id": "byName",
+              "options": "Reads"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "Writes"},
+            "matcher": {
+              "id": "byName",
+              "options": "Writes"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -173,23 +278,32 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
     {
       "id": 6,
-      "title": "Container Disk I/O (cAdvisor)",
+      "title": "Docker Host Disk I/O (cAdvisor)",
       "type": "timeseries",
-      "gridPos": {"x": 12, "y": 6, "w": 12, "h": 8},
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
+          "expr": "rate(container_fs_reads_bytes_total{id=\"/docker\"}[1m])",
           "legendFormat": "Read (Bytes/sec)",
           "refId": "A"
         },
         {
-          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
+          "expr": "rate(container_fs_writes_bytes_total{id=\"/docker\"}[1m])",
           "legendFormat": "Write (Bytes/sec)",
           "refId": "B"
         }
@@ -198,7 +312,9 @@
         "defaults": {
           "unit": "Bps",
           "decimals": 0,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -206,15 +322,33 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Read (Bytes/sec)"},
+            "matcher": {
+              "id": "byName",
+              "options": "Read (Bytes/sec)"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "Write (Bytes/sec)"},
+            "matcher": {
+              "id": "byName",
+              "options": "Write (Bytes/sec)"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -223,7 +357,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
@@ -231,7 +369,12 @@
       "id": 7,
       "title": "Read Latency Percentiles",
       "type": "timeseries",
-      "gridPos": {"x": 0, "y": 14, "w": 12, "h": 8},
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
       "targets": [
         {
           "expr": "broker_storage_read_latency_seconds{quantile=\"0.5\"}",
@@ -253,7 +396,9 @@
         "defaults": {
           "unit": "s",
           "decimals": 4,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -261,21 +406,48 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "p50"},
+            "matcher": {
+              "id": "byName",
+              "options": "p50"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "p95"},
+            "matcher": {
+              "id": "byName",
+              "options": "p95"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "p99"},
+            "matcher": {
+              "id": "byName",
+              "options": "p99"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -284,7 +456,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
@@ -292,7 +468,12 @@
       "id": 8,
       "title": "Write Latency Percentiles",
       "type": "timeseries",
-      "gridPos": {"x": 12, "y": 14, "w": 12, "h": 8},
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
       "targets": [
         {
           "expr": "broker_storage_write_latency_seconds{quantile=\"0.5\"}",
@@ -314,7 +495,9 @@
         "defaults": {
           "unit": "s",
           "decimals": 4,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -322,21 +505,48 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "p50"},
+            "matcher": {
+              "id": "byName",
+              "options": "p50"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "p95"},
+            "matcher": {
+              "id": "byName",
+              "options": "p95"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "p99"},
+            "matcher": {
+              "id": "byName",
+              "options": "p99"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -345,63 +555,43 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
     {
       "id": 9,
-      "title": "Active Storage Segments",
+      "title": "Segment Counts by Topic",
       "type": "timeseries",
-      "gridPos": {"x": 0, "y": 22, "w": 8, "h": 8},
-      "targets": [{
-        "expr": "broker_storage_segments_active",
-        "legendFormat": "Active Segments",
-        "refId": "A"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "decimals": 0,
-          "color": {"mode": "palette-classic"},
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 20
-          }
-        }
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 12,
+        "h": 8
       },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
-        }
-      }
-    },
-    {
-      "id": 10,
-      "title": "Read vs Write Distribution",
-      "type": "timeseries",
-      "gridPos": {"x": 8, "y": 22, "w": 8, "h": 8},
       "targets": [
         {
-          "expr": "rate(broker_storage_reads_total[1m]) / (rate(broker_storage_reads_total[1m]) + rate(broker_storage_writes_total[1m])) * 100",
-          "legendFormat": "Read %",
+          "expr": "max by(topic) (broker_topic_segment_active_count)",
+          "legendFormat": "{{topic}} active",
           "refId": "A"
         },
         {
-          "expr": "rate(broker_storage_writes_total[1m]) / (rate(broker_storage_reads_total[1m]) + rate(broker_storage_writes_total[1m])) * 100",
-          "legendFormat": "Write %",
+          "expr": "max by(topic) (broker_topic_segment_sealed_count)",
+          "legendFormat": "{{topic}} sealed",
           "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "decimals": 1,
-          "min": 0,
-          "max": 100,
-          "color": {"mode": "palette-classic"},
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 20
@@ -412,25 +602,91 @@
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Segment Size Mix by Topic",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 22,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "max by(topic) (broker_topic_segment_active_bytes)",
+          "legendFormat": "{{topic}} active",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by(topic) (broker_topic_segment_sealed_bytes)",
+          "legendFormat": "{{topic}} sealed",
+          "refId": "B"
+        },
+        {
+          "expr": "max by(topic) (broker_topic_segment_largest_bytes)",
+          "legendFormat": "{{topic}} largest",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 1,
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 20
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ]
         }
       }
     },
     {
       "id": 11,
-      "title": "Disk I/O Time",
+      "title": "Docker Host Disk I/O Time",
       "type": "timeseries",
-      "gridPos": {"x": 16, "y": 22, "w": 8, "h": 8},
-      "targets": [{
-        "expr": "rate(container_fs_io_time_seconds_total{id=~\".*/3cdbbb9351e3.*\"}[1m])",
-        "legendFormat": "I/O Time (sec/sec)",
-        "refId": "A"
-      }],
+      "gridPos": {
+        "x": 16,
+        "y": 22,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(container_fs_io_time_seconds_total{id=\"/\", device=\"/dev/vda1\"}[1m])",
+          "legendFormat": "I/O Time (sec/sec)",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
           "decimals": 3,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -441,13 +697,144 @@
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Segment Size Summary",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "sum(broker_topic_segment_active_bytes + broker_topic_segment_sealed_bytes)",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 13,
+      "title": "Largest Segment (bytes)",
+      "type": "stat",
+      "gridPos": {
+        "x": 8,
+        "y": 30,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "max(broker_topic_segment_largest_bytes)",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 14,
+      "title": "Per-Topic Largest Segment",
+      "type": "table",
+      "gridPos": {
+        "x": 16,
+        "y": 30,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "max by(topic) (broker_topic_segment_largest_bytes)",
+          "refId": "A",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true
       }
     }
   ],
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Storage latency, IOPS, active segments, and host-level Docker disk I/O. Use this dashboard to confirm whether a broker issue is storage-bound.",
+  "links": [
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Storage Detail",
+      "type": "link",
+      "url": "/d/storage-health-detail",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Topic Performance",
+      "type": "link",
+      "url": "/d/topic-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ]
 }

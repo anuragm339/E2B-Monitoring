@@ -1,10 +1,10 @@
 {
-  "title": "Per-Consumer Metrics - Detailed View",
+  "title": "Engineering - Per-Consumer Deep Dive",
   "uid": "per-consumer-metrics",
   "tags": [
-    "messaging",
-    "consumer",
-    "detailed"
+    "engineering",
+    "consumers",
+    "deep-dive"
   ],
   "timezone": "browser",
   "schemaVersion": 27,
@@ -98,7 +98,9 @@
         "cellHeight": "sm",
         "footer": {
           "show": true,
-          "reducer": ["count"],
+          "reducer": [
+            "count"
+          ],
           "fields": ""
         }
       },
@@ -149,7 +151,7 @@
       },
       "targets": [
         {
-          "expr": "sum(broker_consumer_messages_sent_total{topic=~\"$topic\",group=~\"$group\"}) - sum(broker_consumer_messages_failed_total{topic=~\"$topic\",group=~\"$group\"} or vector(0))",
+          "expr": "sum(broker_consumer_messages_sent_total{topic=~\"$topic\",group=~\"$group\"}) - (sum(broker_consumer_messages_failed_total{topic=~\"$topic\",group=~\"$group\"}) or vector(0))",
           "refId": "A"
         }
       ],
@@ -175,7 +177,7 @@
     },
     {
       "id": 2,
-      "title": "Successful Data Sent (GB)",
+      "title": "Successful Data Sent",
       "type": "stat",
       "gridPos": {
         "x": 6,
@@ -185,7 +187,7 @@
       },
       "targets": [
         {
-          "expr": "(sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) - sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"} or vector(0))) / 1024 / 1024 / 1024",
+          "expr": "sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) - (sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"}) or vector(0))",
           "refId": "A"
         }
       ],
@@ -195,7 +197,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "bytes",
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -211,7 +213,7 @@
     },
     {
       "id": 3,
-      "title": "Current Offset",
+      "title": "Committed Offset",
       "type": "stat",
       "gridPos": {
         "x": 12,
@@ -237,7 +239,7 @@
     },
     {
       "id": 4,
-      "title": "Consumer Lag",
+      "title": "Offset Gap",
       "type": "stat",
       "gridPos": {
         "x": 18,
@@ -247,7 +249,7 @@
       },
       "targets": [
         {
-          "expr": "max(broker_consumer_lag{topic=~\"$topic\",group=~\"$group\"})",
+          "expr": "max(clamp_min(max by(topic) (broker_topic_head_offset{topic=~\"$topic\"}) - on(topic) group_right(group) max by(topic, group) (broker_consumer_offset{topic=~\"$topic\",group=~\"$group\"}), 0))",
           "refId": "A"
         }
       ],
@@ -317,7 +319,7 @@
     },
     {
       "id": 6,
-      "title": "Consumer Lag Over Time",
+      "title": "Consumer Offset Gap Over Time",
       "type": "timeseries",
       "gridPos": {
         "x": 12,
@@ -327,7 +329,7 @@
       },
       "targets": [
         {
-          "expr": "broker_consumer_lag{topic=~\"$topic\",group=~\"$group\"}",
+          "expr": "clamp_min(max by(topic) (broker_topic_head_offset{topic=~\"$topic\"}) - on(topic) group_right(group) max by(topic, group) (broker_consumer_offset{topic=~\"$topic\",group=~\"$group\"}), 0)",
           "refId": "A",
           "legendFormat": "{{group}} - {{topic}}"
         }
@@ -457,7 +459,7 @@
       },
       "targets": [
         {
-          "expr": "rate(broker_consumer_delivery_latency_seconds_sum{topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{topic=~\"$topic\",group=~\"$group\"}[1m]) * 1000",
+          "expr": "(rate(broker_consumer_delivery_latency_seconds_sum{topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{topic=~\"$topic\",group=~\"$group\"}[1m]) * 1000) or vector(0)",
           "refId": "A",
           "legendFormat": "{{group}} - {{topic}}"
         }
@@ -568,14 +570,26 @@
           "instant": true
         },
         {
-          "expr": "max by (topic, group) (broker_consumer_lag{topic=~\"$topic\",group=~\"$group\"})",
+          "expr": "clamp_min(sum by (topic) (broker_topic_messages_stored_total{topic=~\"$topic\"}) - on(topic) group_right(group) sum by (topic, group) (broker_consumer_messages_sent_total{topic=~\"$topic\",group=~\"$group\"}), 0)",
           "refId": "D",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "avg by (topic, group) (rate(broker_consumer_delivery_latency_seconds_sum{topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{topic=~\"$topic\",group=~\"$group\"}[1m])) * 1000",
+          "expr": "(avg by (topic, group) (rate(broker_consumer_delivery_latency_seconds_sum{topic=~\"$topic\",group=~\"$group\"}[1m]) / rate(broker_consumer_delivery_latency_seconds_count{topic=~\"$topic\",group=~\"$group\"}[1m])) * 1000) or vector(0)",
           "refId": "E",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "expr": "clamp_min(sum by (topic, group) (increase(broker_consumer_messages_sent_total{topic=~\"$topic\",group=~\"$group\"}[1m])), 0)",
+          "refId": "F",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "expr": "clamp_min((time() * 1000 - max by (topic, group) (broker_consumer_last_ack_time_ms{topic=~\"$topic\",group=~\"$group\"})) / 1000, 0)",
+          "refId": "G",
           "format": "table",
           "instant": true
         }
@@ -602,16 +616,20 @@
               "Value #B": 3,
               "Value #C": 4,
               "Value #D": 5,
-              "Value #E": 6
+              "Value #E": 6,
+              "Value #F": 7,
+              "Value #G": 8
             },
             "renameByName": {
               "topic": "Topic",
               "group": "Consumer Group",
               "Value #A": "Total Messages Sent",
               "Value #B": "Total Bytes Sent",
-              "Value #C": "Max Offset",
-              "Value #D": "Max Lag",
-              "Value #E": "Avg Latency (ms)"
+              "Value #C": "Committed Offset",
+              "Value #D": "Broker Backlog (Approx Msgs)",
+              "Value #E": "Avg Latency (ms)",
+              "Value #F": "Msgs Sent (1m)",
+              "Value #G": "Last ACK (sec ago)"
             }
           }
         }
@@ -620,7 +638,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Total Messages Sent",
+            "displayName": "Msgs Sent (1m)",
             "desc": true
           }
         ]
@@ -642,7 +660,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Max Lag"
+              "options": "Broker Backlog (Approx Msgs)"
             },
             "properties": [
               {
@@ -661,6 +679,40 @@
                     {
                       "color": "red",
                       "value": 100
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Msgs Sent (1m)"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 1
+                    },
+                    {
+                      "color": "green",
+                      "value": 20
                     }
                   ]
                 }
@@ -710,6 +762,40 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "Last ACK (sec ago)"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 60
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "Topic"
             },
             "properties": [
@@ -724,7 +810,7 @@
     },
     {
       "id": 12,
-      "title": "Failed Bytes (MB)",
+      "title": "Failed Bytes",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -734,7 +820,7 @@
       },
       "targets": [
         {
-          "expr": "sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"} or vector(0)) / 1024 / 1024",
+          "expr": "sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"}) or vector(0)",
           "refId": "A"
         }
       ],
@@ -744,7 +830,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "bytes",
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -755,11 +841,11 @@
               },
               {
                 "color": "yellow",
-                "value": 10
+                "value": 10485760
               },
               {
                 "color": "red",
-                "value": 100
+                "value": 104857600
               }
             ]
           }
@@ -778,7 +864,7 @@
       },
       "targets": [
         {
-          "expr": "(sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) - sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"} or vector(0))) / (sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) + 0.01) * 100",
+          "expr": "(sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) - (sum(broker_consumer_bytes_failed_bytes_total{topic=~\"$topic\",group=~\"$group\"}) or vector(0))) / (sum(broker_consumer_bytes_sent_bytes_total{topic=~\"$topic\",group=~\"$group\"}) + 0.01) * 100",
           "refId": "A"
         }
       ],
@@ -826,7 +912,7 @@
       },
       "targets": [
         {
-          "expr": "(time() * 1000 - broker_consumer_last_ack_time_ms{topic=~\"$topic\",group=~\"$group\"}) / 1000",
+          "expr": "((max by(topic, group) (clamp_min(max by(topic) (broker_topic_head_offset{topic=~\"$topic\"}) - on(topic) group_right(group) max by(topic, group) (broker_consumer_offset{topic=~\"$topic\",group=~\"$group\"}), 0)) > bool 0) * 2) + (((time() * 1000 - broker_consumer_last_ack_time_ms{topic=~\"$topic\",group=~\"$group\"}) / 1000 > bool 60) * 1)",
           "refId": "A"
         }
       ],
@@ -837,49 +923,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "none",
           "decimals": 0,
           "mappings": [
             {
-              "type": "range",
+              "type": "value",
               "options": {
-                "from": 0,
-                "to": 60,
-                "result": {
+                "0": {
                   "text": "Active",
                   "color": "green"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 60,
-                "to": 300,
-                "result": {
+                },
+                "1": {
                   "text": "Idle",
                   "color": "blue"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 300,
-                "to": 1800,
-                "result": {
-                  "text": "No Data",
-                  "color": "orange"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 1800,
-                "to": 999999,
-                "result": {
-                  "text": "Stuck",
+                },
+                "2": {
+                  "text": "Catching Up",
+                  "color": "yellow"
+                },
+                "3": {
+                  "text": "Stalled",
                   "color": "red"
                 }
               }
@@ -894,15 +957,15 @@
               },
               {
                 "color": "blue",
-                "value": 60
+                "value": 1
               },
               {
-                "color": "orange",
-                "value": 300
+                "color": "yellow",
+                "value": 2
               },
               {
                 "color": "red",
-                "value": 1800
+                "value": 3
               }
             ]
           }
@@ -949,7 +1012,9 @@
         "defaults": {
           "unit": "s",
           "decimals": 0,
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10
@@ -973,6 +1038,33 @@
           }
         }
       }
+    }
+  ],
+  "description": "Detailed topic/group drill-down for one consumer. This is the engineering follow-up dashboard after support isolates a problematic group.",
+  "links": [
+    {
+      "title": "Consumer Health",
+      "type": "link",
+      "url": "/d/consumer-health-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Delivery Diagnosis",
+      "type": "link",
+      "url": "/d/consumer-delivery-diagnosis",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Consumer Error Signals",
+      "type": "link",
+      "url": "/d/consumer-error-dashboard",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
     }
   ]
 }

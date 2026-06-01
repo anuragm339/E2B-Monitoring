@@ -1,295 +1,431 @@
 {
-  "dashboard": {
-    "id": null,
-    "uid": "data-refresh-tables",
-    "title": "Data Refresh Monitoring - Tables",
-    "tags": ["data-refresh", "tables"],
-    "timezone": "browser",
-    "schemaVersion": 38,
-    "version": 0,
-    "refresh": "10s",
-    "panels": [
-      {
-        "id": 1,
-        "title": "Data Refresh Summary - All Topics",
-        "type": "table",
-        "gridPos": {"h": 12, "w": 24, "x": 0, "y": 0},
-        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
-        "targets": [
-          {
-            "expr": "data_refresh_start_time_seconds * 1000",
-            "format": "table",
-            "instant": true,
-            "refId": "A"
-          },
-          {
-            "expr": "data_refresh_end_time_seconds * 1000",
-            "format": "table",
-            "instant": true,
-            "refId": "B"
-          },
-          {
-            "expr": "data_refresh_completed_total",
-            "format": "table",
-            "instant": true,
-            "refId": "C"
-          },
-          {
-            "expr": "data_refresh_bytes_transferred_total_bytes_total",
-            "format": "table",
-            "instant": true,
-            "refId": "D"
-          },
-          {
-            "expr": "data_refresh_messages_transferred_total",
-            "format": "table",
-            "instant": true,
-            "refId": "E"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "merge",
-            "options": {}
-          },
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {
-                "Time": true,
-                "instance": true,
-                "job": true,
-                "service": true,
-                "__name__": true
-              },
-              "renameByName": {
-                "topic": "Topic",
-                "consumer": "Consumer",
-                "refresh_type": "Refresh Type",
-                "Value #A": "Start Time",
-                "Value #B": "End Time",
-                "Value #C": "Status",
-                "Value #D": "Bytes Transferred",
-                "Value #E": "Messages Transferred"
-              }
-            }
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": [
-            {
-              "matcher": {"id": "byName", "options": "Start Time"},
-              "properties": [{"id": "unit", "value": "dateTimeAsIso"}]
-            },
-            {
-              "matcher": {"id": "byName", "options": "End Time"},
-              "properties": [{"id": "unit", "value": "dateTimeAsIso"}]
-            },
-            {
-              "matcher": {"id": "byName", "options": "Bytes Transferred"},
-              "properties": [{"id": "unit", "value": "decbytes"}]
-            }
-          ]
-        }
+  "uid": "data-refresh-tables",
+  "title": "Observability Home - Support & Engineering",
+  "description": "Entry dashboard for support and engineering. Use this page to start triage, then drill into the role-specific dashboards linked below.",
+  "tags": [
+    "home",
+    "support",
+    "engineering",
+    "triage"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "editable": true,
+  "graphTooltip": 0,
+  "links": [
+    {
+      "title": "Support - Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Support - Delivery Diagnosis",
+      "type": "link",
+      "url": "/d/consumer-delivery-diagnosis",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Support - Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Support - Refresh Overview",
+      "type": "link",
+      "url": "/d/data-refresh-overview",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Engineering - JVM & Process Detail",
+      "type": "link",
+      "url": "/d/broker-system-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Engineering - Thread Deep Dive",
+      "type": "link",
+      "url": "/d/thread-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Engineering - ACK Reconciliation",
+      "type": "link",
+      "url": "/d/ack-reconciliation",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Active Consumer Groups",
+      "type": "stat",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
       },
-      {
-        "id": 2,
-        "title": "RESET ACK Duration by Consumer",
-        "type": "table",
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
-        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_reset_ack_duration_seconds_bucket[5m])) by (le, topic, consumer))",
-            "format": "table",
-            "instant": true,
-            "refId": "A"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {"Time": true},
-              "renameByName": {
-                "topic": "Topic",
-                "consumer": "Consumer",
-                "Value": "p95 Duration (seconds)"
-              }
-            }
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": [
-            {
-              "matcher": {"id": "byRegexp", "options": ".*Duration.*"},
-              "properties": [
-                {"id": "unit", "value": "s"},
-                {"id": "decimals", "value": 3}
-              ]
-            }
-          ]
-        }
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
       },
-      {
-        "id": 3,
-        "title": "READY ACK (Replay) Duration by Consumer",
-        "type": "table",
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
-        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_ready_ack_duration_seconds_bucket[5m])) by (le, topic, consumer))",
-            "format": "table",
-            "instant": true,
-            "refId": "A"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {"Time": true},
-              "renameByName": {
-                "topic": "Topic",
-                "consumer": "Consumer",
-                "Value": "p95 Duration (seconds)"
-              }
-            }
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": [
-            {
-              "matcher": {"id": "byRegexp", "options": ".*Duration.*"},
-              "properties": [
-                {"id": "unit", "value": "s"},
-                {"id": "decimals", "value": 3}
-              ]
-            }
-          ]
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "count(count by(group, topic) (broker_consumer_lag))",
+          "refId": "A"
         }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
       },
-      {
-        "id": 4,
-        "title": "Total Refresh Duration by Topic (p50/p95/p99)",
-        "type": "table",
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
-        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.99, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
-            "format": "table",
-            "instant": true,
-            "refId": "A"
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
           },
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
-            "format": "table",
-            "instant": true,
-            "refId": "B"
-          },
-          {
-            "expr": "histogram_quantile(0.50, sum(rate(data_refresh_duration_seconds_bucket[5m])) by (le, topic))",
-            "format": "table",
-            "instant": true,
-            "refId": "C"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "merge",
-            "options": {}
-          },
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {"Time": true},
-              "renameByName": {
-                "topic": "Topic",
-                "Value #A": "p99 (seconds)",
-                "Value #B": "p95 (seconds)",
-                "Value #C": "p50 (seconds)"
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               }
-            }
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": [
-            {
-              "matcher": {"id": "byRegexp", "options": "p[0-9]+.*"},
-              "properties": [
-                {"id": "unit", "value": "s"},
-                {"id": "decimals", "value": 3}
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "id": 5,
-        "title": "Data Transferred by Consumer",
-        "type": "table",
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
-        "datasource": {"type": "prometheus", "uid": "prometheus-datasource"},
-        "targets": [
-          {
-            "expr": "sum by(topic, consumer) (data_refresh_bytes_transferred_total_bytes_total)",
-            "format": "table",
-            "instant": true,
-            "refId": "A"
+            ]
           },
-          {
-            "expr": "sum by(topic, consumer) (data_refresh_messages_transferred_total)",
-            "format": "table",
-            "instant": true,
-            "refId": "B"
-          },
-          {
-            "expr": "data_refresh_transfer_rate_bytes_per_second",
-            "format": "table",
-            "instant": true,
-            "refId": "C"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "merge",
-            "options": {}
-          },
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {"Time": true},
-              "renameByName": {
-                "topic": "Topic",
-                "consumer": "Consumer",
-                "Value #A": "Total Bytes",
-                "Value #B": "Total Messages",
-                "Value #C": "Transfer Rate (Bytes/sec)"
-              }
-            }
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": [
-            {
-              "matcher": {"id": "byName", "options": "Total Bytes"},
-              "properties": [{"id": "unit", "value": "decbytes"}]
-            },
-            {
-              "matcher": {"id": "byName", "options": "Transfer Rate (Bytes/sec)"},
-              "properties": [{"id": "unit", "value": "Bps"}]
-            }
-          ]
+          "unit": "short"
         }
       }
-    ]
-  },
-  "overwrite": true
+    },
+    {
+      "id": 2,
+      "title": "Ingress Rate (msgs/s)",
+      "type": "stat",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "sum(rate(broker_messages_received_total[1m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Egress Rate (msgs/s)",
+      "type": "stat",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "sum(rate(broker_messages_sent_total[1m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Broker Container CPU Usage (%)",
+      "type": "stat",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "broker_container_cpu_usage_percent",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Support Triage Flow",
+      "type": "text",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Support path\n1. Start with [Support - Broker Overview](/d/messaging-broker-multi-consumer).\n2. If a consumer is unhealthy, open [Support - Delivery Diagnosis](/d/consumer-delivery-diagnosis).\n3. If CPU, memory, GC, or file pressure is suspected, open [Support - Broker Resources](/d/broker-bottleneck).\n4. If lag is growing, open [Support - Producer vs Consumer Gap](/d/producer-consumer-gap).\n5. If replay/refresh is involved, open [Support - Refresh Overview](/d/data-refresh-overview).\n\nUse support dashboards first. Escalate to engineering dashboards only after you know whether the issue is delivery, resource, refresh, storage, or replication."
+      }
+    },
+    {
+      "id": 6,
+      "title": "Engineering Drilldown Map",
+      "type": "text",
+      "pluginVersion": "9.5.3",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Engineering path\n- Delivery internals: [Engineering - Per-Consumer Deep Dive](/d/per-consumer-metrics)\n- ACK drift or replay issues: [Engineering - ACK Reconciliation](/d/ack-reconciliation)\n- JVM/process detail: [Engineering - JVM & Process Detail](/d/broker-system-metrics)\n- Thread hot spots: [Engineering - Thread Deep Dive](/d/thread-monitoring)\n- Topic skew or hot partition patterns: [Engineering - Topic Performance](/d/topic-performance)\n- Parent broker ingestion issues: [Engineering - Pipe / Replication](/d/pipe-performance)\n- Refresh timing and replay details: [Engineering - Refresh Topic Detail](/d/data-refresh-monitoring) and [Engineering - Refresh Reliability](/d/refresh-reliability)\n- Storage deep dive: [Engineering - Storage Detail](/d/storage-health-detail)"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Topics Replaying",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "count(data_refresh_state_code == 3) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Max Replay Gap Offset",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "targets": [
+        {
+          "expr": "max(data_refresh_replay_gap_offset) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    }
+  ]
 }

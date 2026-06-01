@@ -29,10 +29,12 @@ fi
 
 echo -e "  ✓ Found container ID: ${GREEN}${CONTAINER_ID}${NC}"
 
-# Get old container ID from dashboard file (if exists)
-DASHBOARD_FILE="$SCRIPT_DIR/grafana/dashboard-files/broker-system-metrics.json"
-# Extract container ID from container_ metric queries
-OLD_CONTAINER_ID=$(grep "container_" "$DASHBOARD_FILE" | grep -oE '[a-f0-9]{12}' | head -1)
+# Dashboards directory
+DASHBOARD_DIR="$SCRIPT_DIR/grafana/dashboard-files"
+
+# Get old container ID from any dashboard (if exists)
+# Extract 12-char container ID from container_ metric queries
+OLD_CONTAINER_ID=$(grep -R "container_" "$DASHBOARD_DIR"/*.json 2>/dev/null | grep -oE '[a-f0-9]{12}' | head -1)
 
 if [ -z "$OLD_CONTAINER_ID" ]; then
     echo -e "${YELLOW}  ⚠ No existing container ID found in dashboard${NC}"
@@ -45,64 +47,33 @@ else
     fi
 fi
 
-# Update broker-system-metrics.json
-echo -e "\n${GREEN}[2/5]${NC} Updating broker-system-metrics.json..."
+# Update ALL dashboard JSON files
+echo -e "\n${GREEN}[2/5]${NC} Updating dashboards in ${DASHBOARD_DIR}..."
 if [ -n "$OLD_CONTAINER_ID" ]; then
-    # Replace old ID with new ID
-    sed -i.bak "s/${OLD_CONTAINER_ID}/${CONTAINER_ID}/g" "$DASHBOARD_FILE"
-    echo -e "  ✓ Updated ${OLD_CONTAINER_ID} → ${CONTAINER_ID}"
+    # Replace old ID with new ID in all dashboards
+    for f in "$DASHBOARD_DIR"/*.json; do
+        sed -i.bak "s/${OLD_CONTAINER_ID}/${CONTAINER_ID}/g" "$f"
+        rm -f "${f}.bak"
+    done
+    echo -e "  ✓ Updated ${OLD_CONTAINER_ID} → ${CONTAINER_ID} in all dashboards"
 else
-    # First time setup - replace placeholder if exists
-    sed -i.bak "s/id=~\"\\.\\*\\/[a-f0-9]*\\.\*\"/id=~\".*\/${CONTAINER_ID}.*\"/g" "$DASHBOARD_FILE"
-    echo -e "  ✓ Set container ID to ${CONTAINER_ID}"
-fi
-
-# Remove backup file
-rm -f "${DASHBOARD_FILE}.bak"
-
-# Update data-refresh-overview.json if it exists
-REFRESH_DASHBOARD="$SCRIPT_DIR/grafana/dashboard-files/data-refresh-overview.json"
-if [ -f "$REFRESH_DASHBOARD" ]; then
-    echo -e "\n${GREEN}[3/5]${NC} Checking data-refresh-overview.json..."
-    if grep -q "container_id" "$REFRESH_DASHBOARD" 2>/dev/null; then
-        if [ -n "$OLD_CONTAINER_ID" ]; then
-            sed -i.bak "s/${OLD_CONTAINER_ID}/${CONTAINER_ID}/g" "$REFRESH_DASHBOARD"
-            rm -f "${REFRESH_DASHBOARD}.bak"
-            echo -e "  ✓ Updated data-refresh-overview.json"
-        fi
-    else
-        echo -e "  ○ No container ID references found"
-    fi
-else
-    echo -e "\n${GREEN}[3/5]${NC} Skipping data-refresh-overview.json (not found)"
-fi
-
-# Update storage-disk-health.json if it exists
-STORAGE_DASHBOARD="$SCRIPT_DIR/grafana/dashboard-files/storage-disk-health.json"
-if [ -f "$STORAGE_DASHBOARD" ]; then
-    echo -e "\n${GREEN}[4/5]${NC} Checking storage-disk-health.json..."
-    if grep -q "container_" "$STORAGE_DASHBOARD" 2>/dev/null; then
-        if [ -n "$OLD_CONTAINER_ID" ]; then
-            sed -i.bak "s/${OLD_CONTAINER_ID}/${CONTAINER_ID}/g" "$STORAGE_DASHBOARD"
-            rm -f "${STORAGE_DASHBOARD}.bak"
-            echo -e "  ✓ Updated storage-disk-health.json"
-        fi
-    else
-        echo -e "  ○ No container ID references found"
-    fi
-else
-    echo -e "\n${GREEN}[4/5]${NC} Skipping storage-disk-health.json (not found)"
+    # First time setup - replace placeholder pattern if exists
+    for f in "$DASHBOARD_DIR"/*.json; do
+        sed -i.bak -E "s/id=~\"\\.\\*\\/[a-f0-9]{12}\\.\*\"/id=~\".*\\/${CONTAINER_ID}.*\"/g" "$f"
+        rm -f "${f}.bak"
+    done
+    echo -e "  ✓ Set container ID to ${CONTAINER_ID} in all dashboards"
 fi
 
 # Restart Grafana to reload dashboards
-echo -e "\n${GREEN}[5/5]${NC} Restarting Grafana to reload dashboards..."
+echo -e "\n${GREEN}[3/5]${NC} Restarting Grafana to reload dashboards..."
 cd "$PROJECT_ROOT"
 docker compose restart grafana > /dev/null 2>&1
 echo -e "  ✓ Grafana restarted"
 
 echo -e "\n${GREEN}✓ Successfully updated container ID!${NC}"
 echo ""
-echo "Dashboard: http://localhost:3000/d/broker-system-metrics"
+echo "Dashboard: http://localhost:3000"
 echo "Container ID: ${CONTAINER_ID}"
 echo ""
 echo -e "${YELLOW}Note:${NC} Run this script after recreating the broker container"
