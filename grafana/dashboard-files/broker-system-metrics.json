@@ -1,11 +1,15 @@
 {
-  "title": "Broker System Metrics - JVM & Resources",
+  "title": "Engineering - JVM & Process Detail",
   "uid": "broker-system-metrics",
-  "tags": ["broker", "system", "jvm"],
+  "tags": [
+    "engineering",
+    "jvm",
+    "process"
+  ],
   "timezone": "browser",
   "schemaVersion": 27,
   "version": 3,
-  "refresh": "5s",
+  "refresh": "30s",
   "time": {
     "from": "now-15m",
     "to": "now"
@@ -35,7 +39,7 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/7882afb5edff.*\"}[1m]) * 100",
+          "expr": "(rate(container_cpu_usage_seconds_total{cpu=\"total\"}[1m]) * 100 and on(id) (container_spec_memory_limit_bytes == 734003200))",
           "refId": "A"
         }
       ],
@@ -46,10 +50,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 50},
-              {"color": "orange", "value": 70},
-              {"color": "red", "value": 85}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         }
@@ -62,8 +78,8 @@
     },
     {
       "id": 2,
-      "title": "Container Memory Usage",
-      "type": "gauge",
+      "title": "Docker Memory Used",
+      "type": "stat",
       "gridPos": {
         "x": 6,
         "y": 1,
@@ -72,23 +88,35 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/7882afb5edff.*\"} / container_spec_memory_limit_bytes{id=~\".*/7882afb5edff.*\"} * 100",
+          "expr": "(container_memory_working_set_bytes and on(id) (container_spec_memory_limit_bytes == 734003200)) / 1024 / 1024",
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "unit": "decmbytes",
           "decimals": 1,
           "max": 100,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 70},
-              {"color": "orange", "value": 85},
-              {"color": "red", "value": 95}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "orange",
+                "value": 85
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
             ]
           }
         }
@@ -110,7 +138,7 @@
       },
       "targets": [
         {
-          "expr": "jvm_threads_live_threads",
+          "expr": "jvm_threads_live_threads{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -121,10 +149,22 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 50},
-              {"color": "orange", "value": 100},
-              {"color": "red", "value": 150}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "orange",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 150
+              }
             ]
           }
         }
@@ -136,8 +176,8 @@
       }
     },
     {
-      "id": 9,
-      "title": "Disk I/O Rate",
+      "id": 4,
+      "title": "Docker Block I/O Total",
       "type": "stat",
       "gridPos": {
         "x": 18,
@@ -147,21 +187,33 @@
       },
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/7882afb5edff.*\"}[1m]) + rate(container_fs_writes_bytes_total{id=~\".*/7882afb5edff.*\"}[1m])",
+          "expr": "((container_fs_reads_bytes_total and on(id) (container_spec_memory_limit_bytes == 734003200)) + (container_fs_writes_bytes_total and on(id) (container_spec_memory_limit_bytes == 734003200))) / 1024 / 1024",
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "Bps",
+          "unit": "decmbytes",
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 1048576},
-              {"color": "orange", "value": 10485760},
-              {"color": "red", "value": 52428800}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1048576
+              },
+              {
+                "color": "orange",
+                "value": 10485760
+              },
+              {
+                "color": "red",
+                "value": 52428800
+              }
             ]
           }
         }
@@ -173,8 +225,8 @@
       }
     },
     {
-      "id": 4,
-      "title": "Memory Breakdown (Container vs JVM)",
+      "id": 5,
+      "title": "Container Memory Breakdown (Anon vs File Cache vs JVM Used)",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -184,49 +236,91 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/7882afb5edff.*\"} / 1024 / 1024",
+          "expr": "broker_container_memory_anon_bytes",
+          "legendFormat": "Anon",
           "refId": "A"
         },
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / 1024 / 1024",
+          "expr": "broker_container_memory_file_bytes",
+          "legendFormat": "File Cache",
           "refId": "B"
         },
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"nonheap\"}) / 1024 / 1024",
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\"})",
+          "legendFormat": "JVM Used",
           "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0}
+              {
+                "color": "green",
+                "value": 0
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": {"id": "byFrameRefID", "options": "A"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
             "properties": [
-              {"id": "displayName", "value": "Container Total"},
-              {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "JVM Heap Used"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "B"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
             "properties": [
-              {"id": "displayName", "value": "JVM Heap"},
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "JVM Non-Heap Used"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "C"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
             "properties": [
-              {"id": "displayName", "value": "JVM Non-Heap"},
-              {"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "JVM Total Used"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -251,7 +345,7 @@
       "collapsed": false
     },
     {
-      "id": 5,
+      "id": 6,
       "title": "Container CPU Trend",
       "type": "timeseries",
       "gridPos": {
@@ -262,7 +356,7 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/7882afb5edff.*\"}[1m]) * 100",
+          "expr": "(rate(container_cpu_usage_seconds_total{cpu=\"total\"}[1m]) * 100 and on(id) (container_spec_memory_limit_bytes == 734003200))",
           "legendFormat": "Container CPU %",
           "refId": "A"
         }
@@ -282,11 +376,17 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Container CPU %"},
+            "matcher": {
+              "id": "byName",
+              "options": "Container CPU %"
+            },
             "properties": [
               {
                 "id": "color",
-                "value": {"fixedColor": "blue", "mode": "fixed"}
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
               }
             ]
           }
@@ -296,7 +396,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -304,7 +408,7 @@
       }
     },
     {
-      "id": 6,
+      "id": 7,
       "title": "Container Memory Trend",
       "type": "timeseries",
       "gridPos": {
@@ -315,19 +419,34 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=~\".*/7882afb5edff.*\"} / 1024 / 1024",
-          "legendFormat": "Container Memory Used (MB)",
+          "expr": "(container_memory_working_set_bytes and on(id) (container_spec_memory_limit_bytes == 734003200))",
+          "legendFormat": "Docker Working Set",
           "refId": "A"
         },
         {
-          "expr": "container_spec_memory_limit_bytes{id=~\".*/7882afb5edff.*\"} / 1024 / 1024",
-          "legendFormat": "Container Memory Limit (MB)",
+          "expr": "broker_container_memory_current_bytes",
+          "legendFormat": "cgroup Current",
           "refId": "B"
+        },
+        {
+          "expr": "broker_container_memory_anon_bytes",
+          "legendFormat": "Anon",
+          "refId": "C"
+        },
+        {
+          "expr": "broker_container_memory_file_bytes",
+          "legendFormat": "File Cache",
+          "refId": "D"
+        },
+        {
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\"})",
+          "legendFormat": "JVM Used",
+          "refId": "E"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -341,7 +460,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -349,8 +472,8 @@
       }
     },
     {
-      "id": 10,
-      "title": "Disk I/O Trend",
+      "id": 8,
+      "title": "Container Disk I/O Trend",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -360,19 +483,19 @@
       },
       "targets": [
         {
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/7882afb5edff.*\"}[1m])",
-          "legendFormat": "Read (Bytes/sec)",
+          "expr": "(container_fs_reads_bytes_total and on(id) (container_spec_memory_limit_bytes == 734003200))",
+          "legendFormat": "Read Bytes",
           "refId": "A"
         },
         {
-          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/7882afb5edff.*\"}[1m])",
-          "legendFormat": "Write (Bytes/sec)",
+          "expr": "(container_fs_writes_bytes_total and on(id) (container_spec_memory_limit_bytes == 734003200))",
+          "legendFormat": "Write Bytes",
           "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "Bps",
+          "unit": "bytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -383,15 +506,33 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Read (Bytes/sec)"},
+            "matcher": {
+              "id": "byName",
+              "options": "Read (ops/sec)"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "Write (Bytes/sec)"},
+            "matcher": {
+              "id": "byName",
+              "options": "Write (ops/sec)"
+            },
             "properties": [
-              {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -400,7 +541,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -408,7 +553,7 @@
       }
     },
     {
-      "id": 8,
+      "id": 9,
       "title": "Thread Count Trend",
       "type": "timeseries",
       "gridPos": {
@@ -419,12 +564,12 @@
       },
       "targets": [
         {
-          "expr": "jvm_threads_live_threads",
+          "expr": "jvm_threads_live_threads{service=\"broker\"}",
           "legendFormat": "Live Threads",
           "refId": "A"
         },
         {
-          "expr": "jvm_threads_daemon_threads",
+          "expr": "jvm_threads_daemon_threads{service=\"broker\"}",
           "legendFormat": "Daemon Threads",
           "refId": "B"
         }
@@ -445,7 +590,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -465,7 +614,7 @@
       "collapsed": false
     },
     {
-      "id": 9,
+      "id": 10,
       "title": "Heap vs Non-Heap Memory",
       "type": "stat",
       "gridPos": {
@@ -476,38 +625,65 @@
       },
       "targets": [
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / 1024 / 1024",
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\", area=\"heap\"})",
           "refId": "A"
         },
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"nonheap\"}) / 1024 / 1024",
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\", area=\"nonheap\"})",
           "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0}
+              {
+                "color": "green",
+                "value": 0
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": {"id": "byFrameRefID", "options": "A"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
             "properties": [
-              {"id": "displayName", "value": "Heap Memory"},
-              {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Heap Memory"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "B"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
             "properties": [
-              {"id": "displayName", "value": "Non-Heap Memory"},
-              {"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Non-Heap Memory"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -520,7 +696,7 @@
       }
     },
     {
-      "id": 10,
+      "id": 11,
       "title": "GC Activity Summary",
       "type": "stat",
       "gridPos": {
@@ -531,11 +707,11 @@
       },
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_seconds_count[1m]) * 60",
+          "expr": "rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m]) * 60",
           "refId": "A"
         },
         {
-          "expr": "rate(jvm_gc_pause_seconds_sum[1m]) * 1000",
+          "expr": "(sum(rate(jvm_gc_pause_seconds_sum{service=\"broker\"}[1m])) / sum(rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m]))) * 1000 or vector(0)",
           "refId": "B"
         }
       ],
@@ -545,26 +721,56 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 5},
-              {"color": "orange", "value": 10},
-              {"color": "red", "value": 20}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": {"id": "byFrameRefID", "options": "A"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
             "properties": [
-              {"id": "displayName", "value": "GC Events/min"},
-              {"id": "unit", "value": "short"}
+              {
+                "id": "displayName",
+                "value": "GC Events/min"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "B"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
             "properties": [
-              {"id": "displayName", "value": "Avg GC Pause (ms)"},
-              {"id": "unit", "value": "ms"}
+              {
+                "id": "displayName",
+                "value": "Avg GC Pause (ms)"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
             ]
           }
         ]
@@ -577,7 +783,7 @@
       }
     },
     {
-      "id": 11,
+      "id": 12,
       "title": "Memory Pool Breakdown",
       "type": "stat",
       "gridPos": {
@@ -588,60 +794,111 @@
       },
       "targets": [
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Eden.*\"} / 1024 / 1024",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Eden Space\"}",
           "refId": "A"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Old.*\"} / 1024 / 1024",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Old Gen\"}",
           "refId": "B"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Survivor.*\"} / 1024 / 1024",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Survivor Space\"}",
           "refId": "C"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=\"Metaspace\"} / 1024 / 1024",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"Metaspace\"}",
           "refId": "D"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0}
+              {
+                "color": "green",
+                "value": 0
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": {"id": "byFrameRefID", "options": "A"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
             "properties": [
-              {"id": "displayName", "value": "Eden Space"},
-              {"id": "color", "value": {"fixedColor": "light-blue", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Eden Space"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "B"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
             "properties": [
-              {"id": "displayName", "value": "Old Gen"},
-              {"id": "color", "value": {"fixedColor": "dark-blue", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Old Gen"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "C"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
             "properties": [
-              {"id": "displayName", "value": "Survivor Space"},
-              {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Survivor Space"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byFrameRefID", "options": "D"},
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
             "properties": [
-              {"id": "displayName", "value": "Metaspace"},
-              {"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}
+              {
+                "id": "displayName",
+                "value": "Metaspace"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
             ]
           }
         ]
@@ -666,7 +923,7 @@
       "collapsed": false
     },
     {
-      "id": 12,
+      "id": 13,
       "title": "Heap Memory Usage Trend",
       "type": "timeseries",
       "gridPos": {
@@ -677,24 +934,24 @@
       },
       "targets": [
         {
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / 1024 / 1024",
-          "legendFormat": "Heap Used (MB)",
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\", area=\"heap\"})",
+          "legendFormat": "Heap Used",
           "refId": "A"
         },
         {
-          "expr": "jvm_memory_max_bytes{area=\"heap\"} / 1024 / 1024",
-          "legendFormat": "Heap Max (MB)",
+          "expr": "sum(jvm_memory_max_bytes{service=\"broker\", area=\"heap\"})",
+          "legendFormat": "Heap Max",
           "refId": "B"
         },
         {
-          "expr": "jvm_memory_committed_bytes{area=\"heap\"} / 1024 / 1024",
-          "legendFormat": "Heap Committed (MB)",
+          "expr": "sum(jvm_memory_committed_bytes{service=\"broker\", area=\"heap\"})",
+          "legendFormat": "Heap Committed",
           "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -708,7 +965,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -716,7 +977,7 @@
       }
     },
     {
-      "id": 13,
+      "id": 14,
       "title": "Garbage Collection Activity",
       "type": "timeseries",
       "gridPos": {
@@ -727,13 +988,13 @@
       },
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_seconds_count[1m])",
+          "expr": "rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m])",
           "legendFormat": "GC Events/sec - {{action}}",
           "refId": "A"
         },
         {
-          "expr": "rate(jvm_gc_pause_seconds_sum[1m]) * 1000",
-          "legendFormat": "GC Pause Time (ms/s) - {{action}}",
+          "expr": "(rate(jvm_gc_pause_seconds_sum{service=\"broker\"}[1m]) / rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m]) * 1000) or vector(0)",
+          "legendFormat": "GC Avg Pause (ms) - {{action}}",
           "refId": "B"
         }
       ],
@@ -750,18 +1011,39 @@
         },
         "overrides": [
           {
-            "matcher": {"id": "byRegexp", "options": "/GC Events.*/"},
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/GC Events.*/"
+            },
             "properties": [
-              {"id": "unit", "value": "ops"},
-              {"id": "custom.axisLabel", "value": "Events/sec"}
+              {
+                "id": "unit",
+                "value": "ops"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Events/sec"
+              }
             ]
           },
           {
-            "matcher": {"id": "byRegexp", "options": "/GC Pause.*/"},
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/GC Pause.*/"
+            },
             "properties": [
-              {"id": "unit", "value": "ms"},
-              {"id": "custom.axisPlacement", "value": "right"},
-              {"id": "custom.axisLabel", "value": "Pause Time (ms)"}
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Pause Time (ms)"
+              }
             ]
           }
         ]
@@ -770,7 +1052,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -778,7 +1064,7 @@
       }
     },
     {
-      "id": 14,
+      "id": 15,
       "title": "Memory Pools Trend - Detailed Breakdown",
       "type": "timeseries",
       "gridPos": {
@@ -789,34 +1075,34 @@
       },
       "targets": [
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Eden.*\"} / 1024 / 1024",
-          "legendFormat": "Eden Space (MB)",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Eden Space\"}",
+          "legendFormat": "Eden Space",
           "refId": "A"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Old.*\"} / 1024 / 1024",
-          "legendFormat": "Old Gen (MB)",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Old Gen\"}",
+          "legendFormat": "Old Gen",
           "refId": "B"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=~\".*Survivor.*\"} / 1024 / 1024",
-          "legendFormat": "Survivor Space (MB)",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"G1 Survivor Space\"}",
+          "legendFormat": "Survivor Space",
           "refId": "C"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=\"Metaspace\"} / 1024 / 1024",
-          "legendFormat": "Metaspace (MB)",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=\"Metaspace\"}",
+          "legendFormat": "Metaspace",
           "refId": "D"
         },
         {
-          "expr": "jvm_memory_used_bytes{id=~\"CodeHeap.*\"} / 1024 / 1024",
-          "legendFormat": "{{id}} (MB)",
+          "expr": "jvm_memory_used_bytes{service=\"broker\", id=~\"CodeHeap.*\"}",
+          "legendFormat": "{{id}}",
           "refId": "E"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "decmbytes",
+          "unit": "bytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -830,7 +1116,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi"
@@ -841,5 +1131,32 @@
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Detailed JVM, process, memory-pool, GC, and storage-op dashboard for the broker. This dashboard is scoped to broker service metrics.",
+  "links": [
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Thread Deep Dive",
+      "type": "link",
+      "url": "/d/thread-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Platform - Container Metrics",
+      "type": "link",
+      "url": "/d/container-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ]
 }

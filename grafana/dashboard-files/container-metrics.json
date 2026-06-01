@@ -1,7 +1,11 @@
 {
-  "title": "Container Metrics",
+  "title": "Platform - Container Metrics",
   "uid": "container-metrics",
-  "tags": ["container", "cadvisor", "disk", "network"],
+  "tags": [
+    "platform",
+    "containers",
+    "host"
+  ],
   "timezone": "browser",
   "schemaVersion": 27,
   "version": 1,
@@ -23,8 +27,8 @@
       },
       "targets": [
         {
-          "expr": "rate(container_blkio_device_usage_total{operation=\"Read\"}[1m])",
-          "legendFormat": "{{device}} - Read",
+          "expr": "rate(container_fs_reads_bytes_total{id=~\"/docker/[0-9a-f]{64}\"}[1m])",
+          "legendFormat": "{{id}} - Read",
           "refId": "A"
         }
       ],
@@ -44,7 +48,10 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean"]
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ]
         }
       }
     },
@@ -60,8 +67,8 @@
       },
       "targets": [
         {
-          "expr": "rate(container_blkio_device_usage_total{operation=\"Write\"}[1m])",
-          "legendFormat": "{{device}} - Write",
+          "expr": "rate(container_fs_writes_bytes_total{id=~\"/docker/[0-9a-f]{64}\"}[1m])",
+          "legendFormat": "{{id}} - Write",
           "refId": "A"
         }
       ],
@@ -81,7 +88,10 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean"]
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ]
         }
       }
     },
@@ -118,7 +128,10 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean"]
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ]
         }
       }
     },
@@ -155,13 +168,16 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean"]
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ]
         }
       }
     },
     {
       "id": 5,
-      "title": "Container CPU Usage",
+      "title": "All Containers CPU Usage (summed)",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -171,8 +187,8 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=\"/\"}[1m]) * 100",
-          "legendFormat": "System CPU",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{id=~\"/docker/[0-9a-f]{64}\"}[1m])) * 100",
+          "legendFormat": "All Containers CPU",
           "refId": "A"
         }
       ],
@@ -192,13 +208,17 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
     {
       "id": 6,
-      "title": "Container Memory Usage",
+      "title": "All Containers Memory Usage (summed)",
       "type": "timeseries",
       "gridPos": {
         "x": 12,
@@ -208,8 +228,8 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{id=\"/\"} / 1024 / 1024",
-          "legendFormat": "System Memory",
+          "expr": "sum(container_memory_working_set_bytes{id=~\"/docker/[0-9a-f]{64}\"}) / 1024 / 1024",
+          "legendFormat": "All Containers Memory",
           "refId": "A"
         }
       ],
@@ -229,7 +249,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["lastNotNull", "mean", "max"]
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
         }
       }
     },
@@ -245,7 +269,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(container_blkio_device_usage_total{operation=\"Read\"}[1m]))",
+          "expr": "sum(rate(container_fs_reads_bytes_total{id=~\"/docker/[0-9a-f]{64}\"}[1m]))",
           "refId": "A"
         }
       ],
@@ -255,9 +279,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 1000000},
-              {"color": "red", "value": 10000000}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 10000000
+              }
             ]
           }
         }
@@ -289,9 +322,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 1000000},
-              {"color": "red", "value": 10000000}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 10000000
+              }
             ]
           }
         }
@@ -323,9 +365,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 1000000},
-              {"color": "red", "value": 10000000}
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 10000000
+              }
             ]
           }
         }
@@ -339,5 +390,24 @@
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Platform-level cAdvisor metrics for host and Docker usage. Use this when the issue may be broader than the broker process itself.",
+  "links": [
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Storage Health",
+      "type": "link",
+      "url": "/d/storage-disk-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ]
 }

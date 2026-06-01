@@ -19,7 +19,32 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Consumer Health",
+      "type": "link",
+      "url": "/d/consumer-health-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Topic Performance",
+      "type": "link",
+      "url": "/d/topic-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -232,12 +257,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(broker_consumer_lag)",
+          "expr": "sum(clamp_min(max by(topic) (broker_topic_head_offset) - on(topic) group_right(group) max by(topic, group) (broker_consumer_offset), 0))",
           "refId": "A"
         }
       ],
       "id": 4,
-      "title": "Total Lag (all topics)",
+      "title": "Total Offset Gap (all topics)",
       "gridPos": {
         "x": 18,
         "y": 0,
@@ -510,13 +535,13 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "max by(topic) (broker_consumer_lag)",
+          "expr": "max by(topic) (clamp_min(max by(topic) (broker_topic_head_offset) - on(topic) group_right(group) max by(topic, group) (broker_consumer_offset), 0))",
           "legendFormat": "{{topic}}",
           "refId": "A"
         }
       ],
       "id": 7,
-      "title": "Lag by Topic",
+      "title": "Offset Gap by Topic",
       "gridPos": {
         "x": 0,
         "y": 12,
@@ -529,8 +554,9 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
+    "support",
     "throughput",
-    "gap"
+    "backlog"
   ],
   "templating": {
     "list": []
@@ -541,11 +567,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Producer vs Consumer Gap",
+  "title": "Support - Producer vs Consumer Gap",
   "uid": "producer-consumer-gap",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Ingress, egress, backlog growth, and lag view. Use this to decide whether the broker is keeping up with load."
 }

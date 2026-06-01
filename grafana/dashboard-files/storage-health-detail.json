@@ -19,7 +19,24 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Storage Health",
+      "type": "link",
+      "url": "/d/storage-disk-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Broker Resources",
+      "type": "link",
+      "url": "/d/broker-bottleneck",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -153,7 +170,7 @@
               }
             ]
           },
-          "unit": "iops"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -209,7 +226,7 @@
               }
             ]
           },
-          "unit": "iops"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -395,7 +412,7 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "Bps"
         }
       },
       "options": {
@@ -420,7 +437,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(container_fs_reads_bytes_total{id=~\".*/7882afb5edff.*\"}[1m])",
+          "expr": "rate(container_fs_reads_bytes_total{id=\"/docker\"}[1m])",
           "legendFormat": "Read",
           "refId": "A"
         },
@@ -429,13 +446,13 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(container_fs_writes_bytes_total{id=~\".*/7882afb5edff.*\"}[1m])",
+          "expr": "rate(container_fs_writes_bytes_total{id=\"/docker\"}[1m])",
           "legendFormat": "Write",
           "refId": "B"
         }
       ],
       "id": 6,
-      "title": "Disk I/O (bytes/s)",
+      "title": "Docker Host Disk I/O (bytes/s)",
       "gridPos": {
         "x": 12,
         "y": 4,
@@ -618,18 +635,150 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(container_fs_io_time_seconds_total{id=~\".*/7882afb5edff.*\"}[1m])",
+          "expr": "rate(container_fs_io_time_seconds_total{id=\"/\", device=\"/dev/vda1\"}[1m])",
           "legendFormat": "IO Time",
           "refId": "A"
         }
       ],
       "id": 8,
-      "title": "Disk I/O Time (s/s)",
+      "title": "Docker Host Disk I/O Time (s/s)",
       "gridPos": {
         "x": 12,
         "y": 12,
         "w": 12,
         "h": 8
+      }
+    },
+    {
+      "id": 9,
+      "title": "Active Segment Size by Topic",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "expr": "max by(topic) (broker_topic_segment_active_bytes)",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Sealed Segment Bytes by Topic",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "expr": "sum by(topic) (broker_topic_segment_sealed_bytes)",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Segment Footprint by Topic",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "targets": [
+        {
+          "expr": "max by(topic) (broker_topic_segment_active_bytes)",
+          "refId": "A",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        },
+        {
+          "expr": "sum by(topic) (broker_topic_segment_sealed_bytes)",
+          "refId": "B",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        },
+        {
+          "expr": "max by(topic) (broker_topic_segment_active_count)",
+          "refId": "C",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        },
+        {
+          "expr": "max by(topic) (broker_topic_segment_sealed_count)",
+          "refId": "D",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        },
+        {
+          "expr": "max by(topic) (broker_topic_segment_largest_bytes)",
+          "refId": "E",
+          "format": "table",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true
       }
     }
   ],
@@ -637,8 +786,9 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
+    "engineering",
     "storage",
-    "disk"
+    "detail"
   ],
   "templating": {
     "list": []
@@ -649,11 +799,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Storage Health Detail",
+  "title": "Engineering - Storage Detail",
   "uid": "storage-health-detail",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Detailed storage and host Docker disk view for engineers. Use this after the support storage dashboard confirms the issue is storage-related."
 }

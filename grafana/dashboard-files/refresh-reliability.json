@@ -19,7 +19,24 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Refresh Overview",
+      "type": "link",
+      "url": "/d/data-refresh-overview",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Refresh Topic Detail",
+      "type": "link",
+      "url": "/d/data-refresh-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -64,7 +81,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(increase(data_refresh_completed_total{status=\"SUCCESS\"}[24h]))",
+          "expr": "sum(increase(data_refresh_completed_total{status=\"SUCCESS\"}[24h])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -120,7 +137,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(increase(data_refresh_completed_total{status=\"FAILURE\"}[24h]))",
+          "expr": "sum(increase(data_refresh_completed_total{status=\"FAILURE\"}[24h])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -176,7 +193,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count(count by(refresh_id) (data_refresh_start_time_seconds) unless (count by(refresh_id) (data_refresh_completed_total)))",
+          "expr": "count(count by(refresh_id) (data_refresh_start_time_seconds) unless (count by(refresh_id) (data_refresh_completed_total))) or vector(0)",
           "refId": "A"
         }
       ],
@@ -232,7 +249,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "avg(rate(data_refresh_duration_seconds_sum[5m]) / rate(data_refresh_duration_seconds_count[5m]))",
+          "expr": "avg(rate(data_refresh_duration_seconds_sum[5m]) / rate(data_refresh_duration_seconds_count[5m])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -312,7 +329,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(refresh_id) (max_over_time(data_refresh_bytes_transferred_total[24h]))",
+          "expr": "sum by(refresh_id) (max_over_time(data_refresh_bytes_transferred_total_bytes[24h]))",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -414,7 +431,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "data_refresh_reset_ack_duration_seconds_sum / data_refresh_reset_ack_duration_seconds_count * 1000",
+          "expr": "(data_refresh_reset_ack_duration_seconds_sum / data_refresh_reset_ack_duration_seconds_count * 1000) or vector(0)",
           "legendFormat": "{{topic}} / {{consumer}} / {{refresh_id}}",
           "refId": "A"
         }
@@ -504,7 +521,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "data_refresh_ready_ack_duration_seconds_sum / data_refresh_ready_ack_duration_seconds_count * 1000",
+          "expr": "(data_refresh_ready_ack_duration_seconds_sum / data_refresh_ready_ack_duration_seconds_count * 1000) or vector(0)",
           "legendFormat": "{{topic}} / {{consumer}} / {{refresh_id}}",
           "refId": "A"
         }
@@ -523,6 +540,7 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
+    "engineering",
     "refresh",
     "reliability"
   ],
@@ -535,11 +553,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Refresh Reliability",
+  "title": "Engineering - Refresh Reliability",
   "uid": "refresh-reliability",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Refresh success, failure, duration, and ACK timing dashboard for debugging unreliable refresh workflows."
 }

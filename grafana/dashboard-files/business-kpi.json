@@ -19,7 +19,32 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Data Freshness SLA",
+      "type": "link",
+      "url": "/d/data-freshness-sla",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Refresh Overview",
+      "type": "link",
+      "url": "/d/data-refresh-overview",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -344,7 +369,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "histogram_quantile(0.95, rate(broker_message_e2e_latency_seconds_bucket[5m])) * 1000",
+          "expr": "broker_message_e2e_latency_seconds{quantile=\"0.95\"} * 1000",
           "refId": "A"
         }
       ],
@@ -400,12 +425,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(increase(data_refresh_completed_total{status=\"SUCCESS\"}[24h]))",
+          "expr": "sum(increase(broker_compaction_runs_total[24h])) or vector(0)",
           "refId": "A"
         }
       ],
       "id": 7,
-      "title": "Refreshes Completed (24h)",
+      "title": "Compaction Runs (24h)",
       "gridPos": {
         "x": 12,
         "y": 4,
@@ -456,12 +481,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "count(count by(refresh_id) (data_refresh_start_time_seconds) unless ((count by(refresh_id) (data_refresh_start_time_seconds)) == (count by(refresh_id) (data_refresh_completed_total))))",
+          "expr": "sum(broker_compaction_active) or vector(0)",
           "refId": "A"
         }
       ],
       "id": 8,
-      "title": "Active Refresh Batches",
+      "title": "Active Compactions",
       "gridPos": {
         "x": 18,
         "y": 4,
@@ -580,8 +605,9 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
-    "business",
-    "kpi"
+    "support",
+    "kpi",
+    "service"
   ],
   "templating": {
     "list": []
@@ -592,11 +618,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Business KPI - Messaging",
+  "title": "Support - Service KPIs",
   "uid": "business-kpi",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "High-level service metrics for delivered volume, success rate, active consumers, latency, and refresh outcomes."
 }

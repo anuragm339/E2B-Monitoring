@@ -6,7 +6,24 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Topic Performance",
+      "type": "link",
+      "url": "/d/topic-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "datasource": {
@@ -82,7 +99,10 @@
       "id": 1,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max"],
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -172,7 +192,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "showPercentChange": false,
@@ -232,7 +254,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "showPercentChange": false,
@@ -308,7 +332,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "values": false,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "showPercentChange": false,
@@ -392,7 +418,7 @@
               }
             ]
           },
-          "unit": "msgs/sec"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -405,7 +431,10 @@
       "id": 5,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "mean"],
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -483,7 +512,7 @@
               }
             ]
           },
-          "unit": "msgs/sec"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -496,7 +525,10 @@
       "id": 6,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "mean"],
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -524,7 +556,11 @@
   ],
   "refresh": "5s",
   "schemaVersion": 39,
-  "tags": ["pipe", "performance"],
+  "tags": [
+    "engineering",
+    "pipe",
+    "replication"
+  ],
   "templating": {
     "list": []
   },
@@ -534,7 +570,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Pipe Performance Dashboard",
+  "title": "Engineering - Pipe / Replication",
   "uid": "pipe-performance",
-  "version": 1
+  "version": 1,
+  "description": "Parent-broker ingestion and replication view. Use this when traffic is delayed before it reaches storage or consumers."
 }

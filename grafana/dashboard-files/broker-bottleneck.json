@@ -19,7 +19,48 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "JVM & Process Detail",
+      "type": "link",
+      "url": "/d/broker-system-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Thread Deep Dive",
+      "type": "link",
+      "url": "/d/thread-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Storage Health",
+      "type": "link",
+      "url": "/d/storage-disk-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Platform - Container Metrics",
+      "type": "link",
+      "url": "/d/container-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -41,7 +82,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "decmbytes"
         },
         "overrides": []
       },
@@ -64,12 +105,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"}) * 100",
+          "expr": "(container_memory_working_set_bytes and on(id) (container_spec_memory_limit_bytes == 734003200)) / 1024 / 1024",
           "refId": "A"
         }
       ],
       "id": 1,
-      "title": "Heap Usage %",
+      "title": "Docker Memory Used (MB)",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -120,12 +161,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "container_memory_working_set_bytes{id=~\".*/7882afb5edff.*\"} / container_spec_memory_limit_bytes{id=~\".*/7882afb5edff.*\"} * 100",
+          "expr": "process_files_open_files{service=\"broker\"} / process_files_max_files{service=\"broker\"} * 100",
           "refId": "A"
         }
       ],
       "id": 2,
-      "title": "Container Memory %",
+      "title": "Open File Utilization %",
       "gridPos": {
         "x": 6,
         "y": 0,
@@ -176,12 +217,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\".*/7882afb5edff.*\"}[1m]) * 100",
+          "expr": "(rate(container_cpu_usage_seconds_total{cpu=\"total\"}[1m]) * 100 and on(id) (container_spec_memory_limit_bytes == 734003200))",
           "refId": "A"
         }
       ],
       "id": 3,
-      "title": "CPU Usage %",
+      "title": "Container CPU Usage %",
       "gridPos": {
         "x": 12,
         "y": 0,
@@ -232,12 +273,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(jvm_gc_pause_seconds_sum[1m]) * 1000",
+          "expr": "(sum(rate(jvm_gc_pause_seconds_sum{service=\"broker\"}[1m])) / sum(rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m])) * 1000) or vector(0)",
           "refId": "A"
         }
       ],
       "id": 4,
-      "title": "GC Pause (ms/s)",
+      "title": "GC Pause avg (ms)",
       "gridPos": {
         "x": 18,
         "y": 0,
@@ -288,7 +329,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_storage_read_latency_seconds{quantile=\"0.99\"} * 1000",
+          "expr": "broker_storage_read_latency_seconds{service=\"broker\", quantile=\"0.99\"} * 1000",
           "refId": "A"
         }
       ],
@@ -344,7 +385,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_storage_write_latency_seconds{quantile=\"0.99\"} * 1000",
+          "expr": "broker_storage_write_latency_seconds{service=\"broker\", quantile=\"0.99\"} * 1000",
           "refId": "A"
         }
       ],
@@ -400,12 +441,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(container_fs_io_time_seconds_total{id=~\".*/7882afb5edff.*\"}[1m])",
+          "expr": "rate(broker_storage_reads_total[1m]) + rate(broker_storage_writes_total[1m])",
           "refId": "A"
         }
       ],
       "id": 7,
-      "title": "Disk I/O Time (s/s)",
+      "title": "Storage Ops Rate (ops/s)",
       "gridPos": {
         "x": 12,
         "y": 4,
@@ -456,7 +497,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "process_files_open",
+          "expr": "process_files_open_files{service=\"broker\"}",
           "refId": "A"
         }
       ],
@@ -520,7 +561,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "bytes"
         }
       },
       "options": {
@@ -541,26 +582,28 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / 1024 / 1024",
-          "legendFormat": "Heap Used",
+          "expr": "(container_memory_working_set_bytes and on(id) (container_spec_memory_limit_bytes == 734003200)) / 1024 / 1024",
+          "legendFormat": "Docker Working Set",
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "sum(jvm_memory_max_bytes{area=\"heap\"}) / 1024 / 1024",
-          "legendFormat": "Heap Max",
+          "expr": "broker_container_memory_current_bytes / 1024 / 1024",
+          "legendFormat": "cgroup Current",
           "refId": "B"
+        },
+        {
+          "expr": "broker_container_memory_anon_bytes / 1024 / 1024",
+          "legendFormat": "Anon",
+          "refId": "C"
+        },
+        {
+          "expr": "broker_container_memory_file_bytes / 1024 / 1024",
+          "legendFormat": "File Cache",
+          "refId": "D"
         }
       ],
       "id": 9,
-      "title": "Heap vs Max (MB)",
+      "title": "Docker vs Broker Memory (MB)",
       "gridPos": {
         "x": 0,
         "y": 8,
@@ -619,7 +662,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "bytes"
         }
       },
       "options": {
@@ -640,26 +683,28 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "container_memory_working_set_bytes{id=~\".*/7882afb5edff.*\"} / 1024 / 1024",
-          "legendFormat": "Working Set",
+          "expr": "(container_memory_working_set_bytes and on(id) (container_spec_memory_limit_bytes == 734003200)) / 1024 / 1024",
+          "legendFormat": "Docker Working Set",
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-datasource"
-          },
-          "expr": "container_spec_memory_limit_bytes{id=~\".*/7882afb5edff.*\"} / 1024 / 1024",
-          "legendFormat": "Limit",
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\", area=\"heap\"}) / 1024 / 1024",
+          "legendFormat": "Heap Used",
           "refId": "B"
+        },
+        {
+          "expr": "sum(jvm_memory_used_bytes{service=\"broker\", area=\"nonheap\"}) / 1024 / 1024",
+          "legendFormat": "Non-Heap Used",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(jvm_memory_max_bytes{service=\"broker\", area=\"heap\"}) / 1024 / 1024",
+          "legendFormat": "Heap Max",
+          "refId": "D"
         }
       ],
       "id": 10,
-      "title": "Container Memory (MB)",
+      "title": "Docker Working Set vs JVM (MB)",
       "gridPos": {
         "x": 12,
         "y": 8,
@@ -743,8 +788,8 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(jvm_gc_pause_seconds_sum[1m]) * 1000",
-          "legendFormat": "GC Pause",
+          "expr": "rate(jvm_gc_pause_seconds_sum{service=\"broker\"}[1m]) / rate(jvm_gc_pause_seconds_count{service=\"broker\"}[1m]) * 1000 or vector(0)",
+          "legendFormat": "GC Pause (avg ms)",
           "refId": "A"
         }
       ],
@@ -833,7 +878,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_storage_read_latency_seconds{quantile=\"0.99\"} * 1000",
+          "expr": "broker_storage_read_latency_seconds{service=\"broker\", quantile=\"0.99\"} * 1000",
           "legendFormat": "Read p99",
           "refId": "A"
         },
@@ -842,7 +887,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_storage_write_latency_seconds{quantile=\"0.99\"} * 1000",
+          "expr": "broker_storage_write_latency_seconds{service=\"broker\", quantile=\"0.99\"} * 1000",
           "legendFormat": "Write p99",
           "refId": "B"
         }
@@ -858,11 +903,12 @@
     }
   ],
   "preload": false,
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 42,
   "tags": [
+    "support",
     "broker",
-    "bottleneck"
+    "resources"
   ],
   "templating": {
     "list": []
@@ -873,11 +919,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Broker Bottleneck - CPU / Memory / Disk",
+  "title": "Support - Broker Resources",
   "uid": "broker-bottleneck",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Broker-focused CPU, memory, open-file, GC, and storage hot-spot view. This dashboard now prefers stable process/JVM metrics over brittle container IDs."
 }

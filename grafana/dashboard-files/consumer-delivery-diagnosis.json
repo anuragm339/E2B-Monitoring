@@ -19,7 +19,40 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Consumer Health",
+      "type": "link",
+      "url": "/d/consumer-health-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Per-Consumer Deep Dive",
+      "type": "link",
+      "url": "/d/per-consumer-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "ACK Reconciliation",
+      "type": "link",
+      "url": "/d/ack-reconciliation",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -209,7 +242,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -232,12 +265,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(rate(broker_consumer_bytes_failed_bytes_total[5m]) or vector(0)) / 1024 / 1024",
+          "expr": "sum(rate(broker_consumer_bytes_failed_bytes_total[5m])) or vector(0)",
           "refId": "A"
         }
       ],
       "id": 4,
-      "title": "Failed Bytes Rate (MB/s)",
+      "title": "Failed Bytes Rate (bytes/s)",
       "gridPos": {
         "x": 18,
         "y": 0,
@@ -656,7 +689,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "Bps"
         }
       },
       "options": {
@@ -681,13 +714,13 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(topic, group) (rate(broker_consumer_bytes_failed_bytes_total[5m]) or vector(0)) / 1024 / 1024",
+          "expr": "sum by(topic, group) (rate(broker_consumer_bytes_failed_bytes_total[5m]))",
           "legendFormat": "{{topic}} / {{group}}",
           "refId": "A"
         }
       ],
       "id": 9,
-      "title": "Failed Bytes Rate by Group (MB/s)",
+      "title": "Failed Bytes Rate by Group (bytes/s)",
       "gridPos": {
         "x": 0,
         "y": 20,
@@ -700,8 +733,9 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
-    "diagnosis",
-    "consumers"
+    "support",
+    "consumers",
+    "diagnosis"
   ],
   "templating": {
     "list": []
@@ -712,11 +746,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Consumer Delivery Diagnosis",
+  "title": "Support - Delivery Diagnosis",
   "uid": "consumer-delivery-diagnosis",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Use this dashboard when a consumer is disconnected, stuck, lagging, or not acking. It is the first drill-down from the broker overview."
 }

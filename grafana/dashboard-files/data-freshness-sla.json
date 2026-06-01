@@ -19,7 +19,24 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Broker Overview",
+      "type": "link",
+      "url": "/d/messaging-broker-multi-consumer",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Topic Performance",
+      "type": "link",
+      "url": "/d/topic-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -393,7 +410,8 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
-    "business",
+    "support",
+    "sla",
     "freshness"
   ],
   "templating": {
@@ -405,11 +423,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Data Freshness SLA",
+  "title": "Support - Data Freshness SLA",
   "uid": "data-freshness-sla",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Freshness-by-topic view for support and product teams. Use this to find stale topics and quantify SLA impact quickly."
 }

@@ -19,7 +19,24 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Consumer Health",
+      "type": "link",
+      "url": "/d/consumer-health-performance",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Per-Consumer Deep Dive",
+      "type": "link",
+      "url": "/d/per-consumer-metrics",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "type": "stat",
@@ -64,7 +81,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(rate(broker_consumer_messages_failed_total[5m]) or vector(0))",
+          "expr": "sum(rate(broker_consumer_messages_failed_total[5m])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -97,7 +114,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -120,12 +137,12 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum(rate(broker_consumer_bytes_failed_bytes_total[5m]) or vector(0)) / 1024 / 1024",
+          "expr": "sum(rate(broker_consumer_bytes_failed_bytes_total[5m])) or vector(0)",
           "refId": "A"
         }
       ],
       "id": 2,
-      "title": "Failed Bytes Rate (MB/s)",
+      "title": "Failed Bytes Rate (bytes/s)",
       "gridPos": {
         "x": 6,
         "y": 0,
@@ -321,7 +338,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(topic, group) (rate(broker_consumer_messages_failed_total[5m]) or vector(0))",
+          "expr": "sum by(topic, group) (rate(broker_consumer_messages_failed_total[5m])) or vector(0)",
           "legendFormat": "{{topic}} / {{group}}",
           "refId": "A"
         }
@@ -386,7 +403,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "Bps"
         }
       },
       "options": {
@@ -411,13 +428,13 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(topic, group) (rate(broker_consumer_bytes_failed_bytes_total[5m]) or vector(0)) / 1024 / 1024",
+          "expr": "sum by(topic, group) (rate(broker_consumer_bytes_failed_bytes_total[5m])) or vector(0)",
           "legendFormat": "{{topic}} / {{group}}",
           "refId": "A"
         }
       ],
       "id": 6,
-      "title": "Failed Bytes by Topic/Group (MB/s)",
+      "title": "Failed Bytes by Topic/Group (bytes/s)",
       "gridPos": {
         "x": 12,
         "y": 4,
@@ -591,7 +608,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "sum by(topic) (rate(consumer_decode_errors_total[5m]))",
+          "expr": "sum by(topic) (rate(consumer_decode_errors_total[5m])) or vector(0)",
           "legendFormat": "{{topic}}",
           "refId": "A"
         }
@@ -610,6 +627,7 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
+    "engineering",
     "consumers",
     "errors"
   ],
@@ -622,11 +640,12 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Consumer Error Dashboard",
+  "title": "Engineering - Consumer Error Signals",
   "uid": "consumer-error-dashboard",
   "version": 1,
   "datasource": {
     "type": "prometheus",
     "uid": "prometheus-datasource"
-  }
+  },
+  "description": "Broker-side failure signals plus optional consumer decode errors. Consumer decode panels require the consumer applications to expose and be scraped for their own metrics."
 }
