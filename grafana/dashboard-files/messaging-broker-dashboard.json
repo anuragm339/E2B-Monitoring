@@ -8,44 +8,28 @@
   "id": null,
   "links": [
     {
-      "title": "Delivery Diagnosis",
+      "title": "Fleet Overview",
       "type": "link",
-      "url": "/d/consumer-delivery-diagnosis",
-      "keepTime": true,
-      "includeVars": true,
-      "targetBlank": false
+      "icon": "dashboard",
+      "url": "/d/fleet-overview",
+      "targetBlank": false,
+      "tags": []
     },
     {
-      "title": "Consumer Health",
+      "title": "Store Detail",
       "type": "link",
-      "url": "/d/consumer-health-performance",
-      "keepTime": true,
-      "includeVars": true,
-      "targetBlank": false
+      "icon": "dashboard",
+      "url": "/d/fleet-store-detail",
+      "targetBlank": false,
+      "tags": []
     },
     {
-      "title": "Producer vs Consumer Gap",
+      "title": "Host Detail",
       "type": "link",
-      "url": "/d/producer-consumer-gap",
-      "keepTime": true,
-      "includeVars": true,
-      "targetBlank": false
-    },
-    {
-      "title": "Broker Resources",
-      "type": "link",
-      "url": "/d/broker-bottleneck",
-      "keepTime": true,
-      "includeVars": true,
-      "targetBlank": false
-    },
-    {
-      "title": "Refresh Overview",
-      "type": "link",
-      "url": "/d/data-refresh-overview",
-      "keepTime": true,
-      "includeVars": true,
-      "targetBlank": false
+      "icon": "dashboard",
+      "url": "/d/messaging-broker-multi-consumer",
+      "targetBlank": false,
+      "tags": []
     }
   ],
   "liveNow": false,
@@ -109,7 +93,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_consumer_subscriptions_active",
+          "expr": "broker_consumer_subscriptions_active{host_id=~\"$host_id\"}",
           "refId": "A"
         }
       ],
@@ -166,7 +150,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_messages_received_total[1m])",
+          "expr": "rate(broker_messages_received_total{host_id=~\"$host_id\"}[1m])",
           "refId": "A"
         }
       ],
@@ -223,7 +207,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_messages_sent_total[1m])",
+          "expr": "rate(broker_messages_sent_total{host_id=~\"$host_id\"}[1m])",
           "refId": "A"
         }
       ],
@@ -288,7 +272,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000) or vector(0)",
+          "expr": "(rate(broker_message_e2e_latency_seconds_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_message_e2e_latency_seconds_count{host_id=~\"$host_id\"}[1m]) * 1000) or vector(0)",
           "refId": "A"
         }
       ],
@@ -345,7 +329,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_bytes_received_bytes_total[1m])",
+          "expr": "rate(broker_bytes_received_bytes_total{host_id=~\"$host_id\"}[1m])",
           "refId": "A"
         }
       ],
@@ -402,7 +386,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_bytes_sent_bytes_total[1m])",
+          "expr": "rate(broker_bytes_sent_bytes_total{host_id=~\"$host_id\"}[1m])",
           "refId": "A"
         }
       ],
@@ -459,7 +443,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_messages_stored_total",
+          "expr": "broker_messages_stored_total{host_id=~\"$host_id\"}",
           "refId": "A"
         }
       ],
@@ -548,7 +532,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_message_e2e_latency_seconds_sum[1m]) / rate(broker_message_e2e_latency_seconds_count[1m]) * 1000) or vector(0)",
+          "expr": "(rate(broker_message_e2e_latency_seconds_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_message_e2e_latency_seconds_count{host_id=~\"$host_id\"}[1m]) * 1000) or vector(0)",
           "legendFormat": "E2E Latency (avg)",
           "refId": "A"
         },
@@ -557,7 +541,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_message_e2e_latency_seconds_max * 1000",
+          "expr": "broker_message_e2e_latency_seconds_max{host_id=~\"$host_id\"} * 1000",
           "legendFormat": "E2E Latency (p100)",
           "refId": "B"
         },
@@ -566,7 +550,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_message_e2e_latency_seconds{quantile=\"0.99\"} * 1000",
+          "expr": "broker_message_e2e_latency_seconds{host_id=~\"$host_id\",quantile=\"0.99\"} * 1000",
           "legendFormat": "E2E Latency (p99)",
           "refId": "C"
         },
@@ -575,7 +559,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_message_e2e_latency_seconds{quantile=\"0.95\"} * 1000",
+          "expr": "broker_message_e2e_latency_seconds{host_id=~\"$host_id\",quantile=\"0.95\"} * 1000",
           "legendFormat": "E2E Latency (p95)",
           "refId": "D"
         }
@@ -665,7 +649,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_message_delivery_latency_seconds_sum[1m]) / rate(broker_message_delivery_latency_seconds_count[1m]) * 1000) or vector(0)",
+          "expr": "(rate(broker_message_delivery_latency_seconds_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_message_delivery_latency_seconds_count{host_id=~\"$host_id\"}[1m]) * 1000) or vector(0)",
           "legendFormat": "Delivery Latency (avg)",
           "refId": "A"
         },
@@ -674,7 +658,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_storage_write_latency_seconds_sum[1m]) / rate(broker_storage_write_latency_seconds_count[1m]) * 1000) or vector(0)",
+          "expr": "(rate(broker_storage_write_latency_seconds_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_storage_write_latency_seconds_count{host_id=~\"$host_id\"}[1m]) * 1000) or vector(0)",
           "legendFormat": "Storage Write (avg)",
           "refId": "B"
         },
@@ -683,7 +667,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_storage_read_latency_seconds_sum[1m]) / rate(broker_storage_read_latency_seconds_count[1m]) * 1000) or vector(0)",
+          "expr": "(rate(broker_storage_read_latency_seconds_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_storage_read_latency_seconds_count{host_id=~\"$host_id\"}[1m]) * 1000) or vector(0)",
           "legendFormat": "Storage Read (avg)",
           "refId": "C"
         }
@@ -773,7 +757,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_bytes_received_bytes_total[1m])",
+          "expr": "rate(broker_bytes_received_bytes_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Bytes Received/sec",
           "refId": "A"
         },
@@ -782,7 +766,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_bytes_sent_bytes_total[1m])",
+          "expr": "rate(broker_bytes_sent_bytes_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Bytes Sent/sec",
           "refId": "B"
         }
@@ -872,7 +856,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_messages_received_total[1m])",
+          "expr": "rate(broker_messages_received_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Received/sec",
           "refId": "A"
         },
@@ -881,7 +865,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_messages_sent_total[1m])",
+          "expr": "rate(broker_messages_sent_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Sent/sec",
           "refId": "B"
         },
@@ -890,7 +874,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_messages_stored_total[1m])",
+          "expr": "rate(broker_messages_stored_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Stored/sec",
           "refId": "C"
         }
@@ -974,17 +958,17 @@
       },
       "targets": [
         {
-          "expr": "broker_consumer_clients_active",
+          "expr": "broker_consumer_clients_active{host_id=~\"$host_id\"}",
           "legendFormat": "Active Clients",
           "refId": "A"
         },
         {
-          "expr": "rate(broker_consumer_clients_connected_total[5m])",
+          "expr": "rate(broker_consumer_clients_connected_total{host_id=~\"$host_id\"}[5m])",
           "legendFormat": "Client Connects/sec",
           "refId": "B"
         },
         {
-          "expr": "rate(broker_consumer_clients_disconnected_total[5m])",
+          "expr": "rate(broker_consumer_clients_disconnected_total{host_id=~\"$host_id\"}[5m])",
           "legendFormat": "Client Disconnects/sec",
           "refId": "C"
         }
@@ -1074,7 +1058,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "(rate(broker_message_size_bytes_sum[1m]) / rate(broker_message_size_bytes_count[1m])) or vector(0)",
+          "expr": "(rate(broker_message_size_bytes_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_message_size_bytes_count{host_id=~\"$host_id\"}[1m])) or vector(0)",
           "legendFormat": "Avg Message Size",
           "refId": "A"
         },
@@ -1083,7 +1067,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_message_size_bytes_max",
+          "expr": "broker_message_size_bytes_max{host_id=~\"$host_id\"}",
           "legendFormat": "Max Message Size",
           "refId": "B"
         },
@@ -1092,7 +1076,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_message_size_bytes{quantile=\"0.99\"}",
+          "expr": "broker_message_size_bytes{host_id=~\"$host_id\",quantile=\"0.99\"}",
           "legendFormat": "P99 Message Size",
           "refId": "C"
         }
@@ -1181,7 +1165,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_storage_writes_total[1m])",
+          "expr": "rate(broker_storage_writes_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Writes/sec",
           "refId": "A"
         },
@@ -1190,7 +1174,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_storage_reads_total[1m])",
+          "expr": "rate(broker_storage_reads_total{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Reads/sec",
           "refId": "B"
         }
@@ -1279,7 +1263,7 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "rate(broker_batch_size_sum[1m]) / rate(broker_batch_size_count[1m])",
+          "expr": "rate(broker_batch_size_sum{host_id=~\"$host_id\"}[1m]) / rate(broker_batch_size_count{host_id=~\"$host_id\"}[1m])",
           "legendFormat": "Avg Batch Size",
           "refId": "A"
         },
@@ -1288,26 +1272,694 @@
             "type": "prometheus",
             "uid": "prometheus-datasource"
           },
-          "expr": "broker_batch_size_max",
+          "expr": "broker_batch_size_max{host_id=~\"$host_id\"}",
           "legendFormat": "Max Batch Size",
           "refId": "B"
         }
       ],
       "title": "Consumer Batch Metrics",
       "type": "timeseries"
+    },
+    {
+      "id": 16,
+      "type": "row",
+      "title": "Consistency & Consumer Latency",
+      "collapsed": false,
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "panels": []
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "Inconsistent Topics",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "count(pipe_consistency_state{host_id=~\"$host_id\"} == 1) OR on() vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 18,
+      "type": "stat",
+      "title": "Unverifiable",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "count(pipe_consistency_state{host_id=~\"$host_id\"} == 2) OR on() vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 19,
+      "type": "stat",
+      "title": "Problem Keys",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "(sum(pipe_consistency_missing_keys{host_id=~\"$host_id\"})+sum(pipe_consistency_zombie_keys{host_id=~\"$host_id\"})+sum(pipe_consistency_fabricated_keys{host_id=~\"$host_id\"})) or vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "Checks Run",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "sum(pipe_consistency_checks_total{host_id=~\"$host_id\"})",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "Inconsistencies",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "sum(pipe_consistency_inconsistent_total{host_id=~\"$host_id\"})",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "Last Audit Age",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 38
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "time() - max(pipe_consistency_last_check_epoch{host_id=~\"$host_id\"})",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 23,
+      "type": "state-timeline",
+      "title": "Pipe Consistency by Topic (this host)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "pipe_consistency_state{host_id=~\"$host_id\"}",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Consistent",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "INCONSISTENT",
+                  "color": "red",
+                  "index": 1
+                },
+                "2": {
+                  "text": "Unverifiable",
+                  "color": "yellow",
+                  "index": 2
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "short",
+          "min": 0,
+          "max": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "never",
+        "alignValue": "left",
+        "rowHeight": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Consumer-wise Delivery Latency (by consumer)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 51
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "(sum by (group)(rate(broker_consumer_delivery_latency_seconds_sum{host_id=~\"$host_id\"}[5m]))/sum by (group)(rate(broker_consumer_delivery_latency_seconds_count{host_id=~\"$host_id\"}[5m]))*1000)",
+          "legendFormat": "{{group}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Consumer Lag (by consumer)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
+      },
+      "fleetAddon": true,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 51
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "expr": "sum by (group)(broker_consumer_lag{host_id=~\"$host_id\"})",
+          "legendFormat": "{{group}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
     }
   ],
   "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
-    "support",
-    "broker",
-    "overview",
-    "primary"
+    "fleet",
+    "host",
+    "broker"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "store_id",
+        "label": "store_id",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-datasource"
+        },
+        "definition": "label_values(broker_consumer_clients_active, store_id)",
+        "query": "label_values(broker_consumer_clients_active, store_id)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": true,
+        "current": {},
+        "options": [],
+        "hide": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "allValue": ".*"
+      },
+      {
+        "name": "host_id",
+        "label": "host_id",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-datasource"
+        },
+        "definition": "label_values(broker_consumer_clients_active{store_id=~\"$store_id\"}, host_id)",
+        "query": "label_values(broker_consumer_clients_active{store_id=~\"$store_id\"}, host_id)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": true,
+        "current": {},
+        "options": [],
+        "hide": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "allValue": ".*"
+      }
+    ]
   },
   "time": {
     "from": "now-15m",
@@ -1315,8 +1967,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Support - Broker Overview",
+  "title": "Host - Broker Detail",
   "uid": "messaging-broker-multi-consumer",
-  "version": 0,
-  "description": "Primary support dashboard for broker traffic, latency, subscriptions, and consumer connectivity. Start here for incident triage."
+  "version": 7,
+  "description": "Per-host broker detail. Filtered by $host_id; redirect target of the Fleet/Store drill-down."
 }

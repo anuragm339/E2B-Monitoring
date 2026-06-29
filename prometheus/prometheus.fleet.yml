@@ -1,0 +1,180 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'messaging-fleet'
+    environment: 'development'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # ---- Fleet POS brokers ---------------------------------------------------
+  # store_id / host_id are attached at scrape time (zero broker-code change).
+  # These labels are the join key for the Fleet -> Store -> Host dashboards.
+  - job_name: 'fleet-brokers'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['pos-a1:8081']
+        labels:
+          service: 'broker'
+          store_id: 'storeA'
+          host_id: 'pos-a1'
+          instance: 'pos-a1'
+      - targets: ['pos-a2:8081']
+        labels:
+          service: 'broker'
+          store_id: 'storeA'
+          host_id: 'pos-a2'
+          instance: 'pos-a2'
+      - targets: ['pos-b1:8081']
+        labels:
+          service: 'broker'
+          store_id: 'storeB'
+          host_id: 'pos-b1'
+          instance: 'pos-b1'
+      - targets: ['pos-b2:8081']
+        labels:
+          service: 'broker'
+          store_id: 'storeB'
+          host_id: 'pos-b2'
+          instance: 'pos-b2'
+
+
+  # ---- Per-POS consumers ---------------------------------------------------
+  - job_name: 'fleet-consumers'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['price-quote-pos-a1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a1'
+          consumer_type: 'price-quote'
+          instance: 'price-quote-pos-a1'
+      - targets: ['product-svc-lite-pos-a1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a1'
+          consumer_type: 'product-svc-lite'
+          instance: 'product-svc-lite-pos-a1'
+      - targets: ['search-enterprise-pos-a1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a1'
+          consumer_type: 'search-enterprise'
+          instance: 'search-enterprise-pos-a1'
+      - targets: ['tesco-location-pos-a1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a1'
+          consumer_type: 'tesco-location'
+          instance: 'tesco-location-pos-a1'
+      - targets: ['price-quote-pos-a2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a2'
+          consumer_type: 'price-quote'
+          instance: 'price-quote-pos-a2'
+      - targets: ['product-svc-lite-pos-a2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a2'
+          consumer_type: 'product-svc-lite'
+          instance: 'product-svc-lite-pos-a2'
+      - targets: ['search-enterprise-pos-a2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a2'
+          consumer_type: 'search-enterprise'
+          instance: 'search-enterprise-pos-a2'
+      - targets: ['tesco-location-pos-a2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeA'
+          host_id: 'pos-a2'
+          consumer_type: 'tesco-location'
+          instance: 'tesco-location-pos-a2'
+      - targets: ['price-quote-pos-b1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b1'
+          consumer_type: 'price-quote'
+          instance: 'price-quote-pos-b1'
+      - targets: ['product-svc-lite-pos-b1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b1'
+          consumer_type: 'product-svc-lite'
+          instance: 'product-svc-lite-pos-b1'
+      - targets: ['search-enterprise-pos-b1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b1'
+          consumer_type: 'search-enterprise'
+          instance: 'search-enterprise-pos-b1'
+      - targets: ['tesco-location-pos-b1:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b1'
+          consumer_type: 'tesco-location'
+          instance: 'tesco-location-pos-b1'
+      - targets: ['price-quote-pos-b2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b2'
+          consumer_type: 'price-quote'
+          instance: 'price-quote-pos-b2'
+      - targets: ['product-svc-lite-pos-b2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b2'
+          consumer_type: 'product-svc-lite'
+          instance: 'product-svc-lite-pos-b2'
+      - targets: ['search-enterprise-pos-b2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b2'
+          consumer_type: 'search-enterprise'
+          instance: 'search-enterprise-pos-b2'
+      - targets: ['tesco-location-pos-b2:8090']
+        labels:
+          service: 'consumer'
+          store_id: 'storeB'
+          host_id: 'pos-b2'
+          consumer_type: 'tesco-location'
+          instance: 'tesco-location-pos-b2'
+
+  # Cloud-server is intentionally NOT scraped: it exposes /health but no Micronaut
+  # micrometer /prometheus endpoint (returns 404). It is the data source, not a
+  # fleet metrics target.
+
+  # ---- Prometheus self-monitoring -----------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ---- cAdvisor (container CPU/mem/disk/net for per-host panels) -----------
+  - job_name: 'cadvisor'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
